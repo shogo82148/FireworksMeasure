@@ -38,6 +38,11 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	private List<Sensor> mag_sensors;	//磁気センサ
 	private float[] magValues = new float[3];	//磁気センサの値
 	
+	//端末の姿勢
+	private float[] tmpR = new float[16];
+	private float[] R = new float[16];
+	private float[] orientation = new float[3];
+	
 	//GPS情報
 	private Location location;
 	
@@ -116,19 +121,17 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	 * @return 現在の仰角[rad]
 	 */
 	private double getElevation() {
-		double len = 0;
-		int i;
-		for(i=0;i<accValues.length;i++) {
-			len += accValues[i]*accValues[i];
-		}
-		len = Math.sqrt(len);
-		
-		double cos = -accValues[2] / len;
-		double theta = Math.asin(cos);
-		
-		return theta;
+		return -orientation[1];
 	}
 	
+	/**
+	 * 現在の方位を返す
+	 * @return 北からの角度[rad]
+	 */
+	private double getCompus() {
+		return orientation[0];
+	}
+		
 	@Override
 	protected void onSizeChanged(int width, int height, int oldwidth, int oldheight) {
 		this.width = width;
@@ -157,8 +160,9 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		if(isRepeat) {
 			//タイマ動作中のメッセージ
 			message = "花火を画面中央に入れ、音がしたら画面をタッチ(" + 
-				getTime() + "ms, " + 
-				(int)(getElevation()/Math.PI*180+0.5) + "度)";
+				getTime() + "ms, 仰角:" + 
+				(int)(Math.toDegrees(getElevation())+0.5) + "度, 方位:" +
+				(int)(Math.toDegrees(getCompus())+0.5)+ "度)";
 		} else {
 			//タイマ停止中のメッセージ
 			message = "花火が見えたら画面をタッチ";
@@ -173,8 +177,8 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	public boolean onTouchEvent(MotionEvent event) {
 		if(isRepeat) {
 			stopTimer();
-			/*if(location==null) showResult();
-			else*/ showMap();
+			if(location==null) showResult();
+			else showMap();
 		} else {
 			startTimer();
 		}
@@ -222,7 +226,13 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		
 		builder.setTitle("測定結果");
 		builder.setMessage(message);
-		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+		builder.setPositiveButton("再計測", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				//Do Nothing
+			}
+		});
+		builder.setNegativeButton("地図を表示", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				//Do Nothing
@@ -250,6 +260,11 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		} else if(type==Sensor.TYPE_TEMPERATURE){
 			temp = event.values[0];
 		}
+		
+		SensorManager.getRotationMatrix(tmpR, null,
+			accValues, magValues);
+		SensorManager.remapCoordinateSystem(tmpR, SensorManager.AXIS_Z, SensorManager.AXIS_MINUS_X, R);
+		SensorManager.getOrientation(R, orientation);
 	}
 	
 	@Override
