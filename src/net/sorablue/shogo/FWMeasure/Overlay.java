@@ -20,7 +20,6 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
 public class Overlay extends View implements SensorEventListener, PreviewCallback {
 	private final int REPEAT_INTERVAL = 100;
