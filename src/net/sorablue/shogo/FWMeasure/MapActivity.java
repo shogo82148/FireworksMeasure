@@ -1,6 +1,10 @@
 package net.sorablue.shogo.FWMeasure;
 
+import java.util.List;
+
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -21,21 +25,26 @@ public class MapActivity extends com.google.android.maps.MapActivity{
         m.setEnabled(true);
         m.setClickable(true);
         m_controller = m.getController();
-    }
-    
-    public void onStart() {
-    	super.onStart();
+        
+        //引数の取得
         Intent intent = getIntent();
 		latitude = intent.getDoubleExtra("latitude", 0);
 		longitude = intent.getDoubleExtra("longitude", 0);
 		Toast.makeText(this, latitude+","+longitude, Toast.LENGTH_LONG).show();
-
+        
+		//表示位置の設定
 		GeoPoint gp = 
 			new GeoPoint((int)(latitude*1E6),
 				         (int)(longitude*1E6));
         m_controller.setCenter(gp);
+		
+     // 画像を地図上に配置するオーバーレイ
+        Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.violet);
+        MapOverlay overlay = new MapOverlay(bmp, gp);
+        List<com.google.android.maps.Overlay> list = m.getOverlays();
+        list.add(overlay);
     }
-	
+    
 	@Override
 	protected boolean isRouteDisplayed() {
 		return false;
