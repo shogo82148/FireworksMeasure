@@ -53,7 +53,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	protected boolean isRepeat = false; //True:タイマ動作中 False:タイマ停止
 	protected long startTime;	//計測を開始したときの時刻
 	
-	private double earthR = 6378137; //地球の半径
+	private final double earthR = 6378137; //地球の半径
 	
 	private Handler handler = new Handler(){
         @Override
@@ -148,14 +148,14 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		return ret;
 	}
 	
-	private String getCompusName() {
-		int t = (int)(getCompus()/Math.PI*8 + 8.5) % 16;
+	private String getCompusName(double compus) {
+		int t = (int)(compus/Math.PI*8 + 8.5) % 16;
 		String[] name = {"南", "南南西", "南西", "西南西", "西", "西北西", "北西", "北北西", "北", "北北東", "北東", "東北東", "東", "東南東", "南東", "南南東"};
 		return name[t];
 	}
 	
-	private String getCompusString() {
-		int t = (int)Math.floor(Math.toDegrees(getCompus())+0.5);
+	private String getCompusString(double compus) {
+		int t = (int)Math.floor(Math.toDegrees(compus)+0.5);
 		if(0<=t && t<=90) {
 			return "N" + t + "E";
 		} else if(t>90) {
@@ -196,7 +196,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 			message = "花火を画面中央に入れ、音がしたら画面をタッチ(" + 
 				getTime() + "ms, 仰角:" + 
 				(int)(Math.toDegrees(getElevation())+0.5) + "度, 方位:" +
-				getCompusString();
+				getCompusString(getCompus());
 		} else {
 			//タイマ停止中のメッセージ
 			message = "花火が見えたら画面をタッチ";
@@ -211,8 +211,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	public boolean onTouchEvent(MotionEvent event) {
 		if(isRepeat) {
 			stopTimer();
-			if(location==null) showResult();
-			else showMap();
+			showResult();
 		} else {
 			startTimer();
 		}
@@ -228,6 +227,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		double dsin = d*Math.sin(theta);
 		double h = Math.sqrt(d*d+earthR*earthR+2*earthR*dsin)-earthR; //花火の高さ
 		double l = Math.acos((earthR+dsin)/(earthR+h))*earthR; //花火央までの距離
+		double compus = getCompus();
 		
 		String message = String.format(
 				"遅延時間:%dms\n" +
@@ -239,24 +239,9 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 				"方位:%s(%s)",
 				time, Math.toDegrees(theta),
 				speed, temp, d, h, l,
-				getCompusName(), getCompusString()
+				getCompusName(compus), getCompusString(compus)
 				);
-		alert(message);
-	}
-	
-	private void showMap() {
-		Intent intent = new Intent(getContext(),
-	       		MapActivity.class);
-		intent.putExtra("latitude", 37.436567);//location.getLatitude());
-		intent.putExtra("longitude", 138.839035);//location.getLongitude());
-		getContext().startActivity(intent);
-	}
-	
-	/**
-	 * 測定結果ダイアログを表示する
-	 * @param message
-	 */
-	private void alert(String message) {
+		
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 		
 		builder.setTitle("測定結果");
@@ -267,15 +252,21 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 				//Do Nothing
 			}
 		});
-		builder.setNegativeButton("地図を表示", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				//Do Nothing
-			}
-		});
+		/*if(location!=null)*/ {
+			builder.setNegativeButton("地図を表示", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					Intent intent = new Intent(getContext(),
+				       		MapActivity.class);
+					intent.putExtra("latitude", 37.436567);//location.getLatitude());
+					intent.putExtra("longitude", 138.839035);//location.getLongitude());
+					getContext().startActivity(intent);
+				}
+			});
+		}
 		builder.create().show();
 	}
-
+	
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// Do Nothing
