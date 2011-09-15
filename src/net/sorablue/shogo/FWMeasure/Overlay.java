@@ -9,7 +9,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.hardware.Camera;
-import android.hardware.Camera.Size;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -24,19 +23,22 @@ import android.view.View;
 public class Overlay extends View implements SensorEventListener, PreviewCallback {
 	private final int REPEAT_INTERVAL = 100;
 	private final int MESSAGE_WHAT = 100;
-	private SensorManager manager;
-	private List<Sensor> acc_sensors;
-	private List<Sensor> temp_sensors;
-	private float[] sensorValues = new float[3];
-	private int threshold = 20;
-	private long last_light = Long.MAX_VALUE;
+	
+	//センサを扱うためのフィールド
+	private SensorManager manager;		//センサ管理のクラス
+	private List<Sensor> temp_sensors;	//温度センサ
+	private float temp = 20;			//現在の温度
+	private List<Sensor> acc_sensors;	//加速度センサ
+	private float[] accValues = new float[3];	//加速度センサの値
+	
+	//private int threshold = 20;
+	//private long last_light = Long.MAX_VALUE;
 	private int width, height;
 	
-	protected boolean isRepeat = false;
-	protected long startTime;
+	protected boolean isRepeat = false; //True:タイマ動作中 False:タイマ停止
+	protected long startTime;	//計測を開始したときの時刻
 	
 	private double earthR = 6378137; //地球の半径
-	private float temp = 20;	//温度
 	
 	private Handler handler = new Handler(){
         @Override
@@ -53,7 +55,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		
 		setDrawingCacheEnabled(true);
 		
-		//加速度センサ取得
+		//センサの設定
 		manager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
 		acc_sensors = manager.getSensorList(Sensor.TYPE_ACCELEROMETER);
 		temp_sensors = manager.getSensorList(Sensor.TYPE_TEMPERATURE);
@@ -61,36 +63,54 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		stopTimer();
 	}
 	
+	/**
+	 * タイマ動作を開始する
+	 */
 	private void startTimer() {
+		//タイマの起動
 		isRepeat = true;
 		Message message = new Message();
         message.what = MESSAGE_WHAT;
 		handler.sendMessageDelayed(message, REPEAT_INTERVAL);
 		startTime = SystemClock.uptimeMillis();
+		
+		//センサの取得開始
 		manager.registerListener(this, acc_sensors.get(0), SensorManager.SENSOR_DELAY_GAME);
 		if(temp_sensors!=null && temp_sensors.size()>0)
 			manager.registerListener(this, temp_sensors.get(0), SensorManager.SENSOR_DELAY_UI);
 	}
 	
+	/**
+	 * タイマ動作を停止する
+	 */
 	private void stopTimer() {
 		isRepeat = false;
 		manager.unregisterListener(this);
-		last_light = Long.MAX_VALUE;
+		//last_light = Long.MAX_VALUE;
 	}
 	
+	/**
+	 * タイマが起動してからの経過時間を返す
+	 * @return タイマを開始してからの経過時間(ms)。タイマが動作していない場合は0。
+	 */
 	private long getTime() {
-		return SystemClock.uptimeMillis() - startTime;
+		if(isRepeat) return SystemClock.uptimeMillis() - startTime;
+		return 0;
 	}
 	
+	/**
+	 * 現在の仰角を返す。
+	 * @return 現在の仰角[rad]
+	 */
 	private double getElevation() {
 		double len = 0;
 		int i;
-		for(i=0;i<sensorValues.length;i++) {
-			len += sensorValues[i]*sensorValues[i];
+		for(i=0;i<accValues.length;i++) {
+			len += accValues[i]*accValues[i];
 		}
 		len = Math.sqrt(len);
 		
-		double cos = -sensorValues[2] / len;
+		double cos = -accValues[2] / len;
 		double theta = Math.asin(cos);
 		
 		return theta;
@@ -102,6 +122,9 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		this.height = height;
 	}
 	
+	/**
+	 * 描画時に呼び出されるメソッド
+	 */
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
@@ -115,15 +138,20 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		
 		String message = "";
 		if(isRepeat) {
+			//タイマ動作中のメッセージ
 			message = "花火を画面中央に入れ、音がしたら画面をタッチ(" + 
 				getTime() + "ms, " + 
 				(int)(getElevation()/Math.PI*180+0.5) + "度)";
 		} else {
+			//タイマ停止中のメッセージ
 			message = "花火が見えたら画面をタッチ";
 		}
 		canvas.drawText(message, 0, height-5, paint);
 	}
 	
+	/**
+	 * 画面がタッチされたとき
+	 */
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if(isRepeat) {
@@ -155,6 +183,10 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		return super.onTouchEvent(event);
 	}
 	
+	/**
+	 * 測定結果ダイアログを表示する
+	 * @param message
+	 */
 	private void alert(String message) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 		
@@ -178,9 +210,9 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	public void onSensorChanged(SensorEvent event) {
 		int type = event.sensor.getType();
 		if(type==Sensor.TYPE_ACCELEROMETER) {
-			sensorValues[0] = event.values[0];
-			sensorValues[1] = event.values[1];
-			sensorValues[2] = event.values[2];
+			accValues[0] = event.values[0];
+			accValues[1] = event.values[1];
+			accValues[2] = event.values[2];
 		} else if(type==Sensor.TYPE_TEMPERATURE){
 			temp = event.values[0];
 		}
@@ -188,7 +220,9 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) {
-		if(isRepeat) return ;
+		return ;
+		//ToDo: プレビュー映像を解析して自動化できるといいな
+		/*if(isRepeat) return ;
 		Size size = camera.getParameters().getPreviewSize();
 		final int frameSize = size.width*size.height;
 		long count = 0;
@@ -198,6 +232,6 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		}
 		long t = (long)(threshold*frameSize);
 		if(count-last_light>t) startTimer();
-		last_light = count;
+		last_light = count;*/
 	}
 }
