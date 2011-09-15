@@ -147,7 +147,25 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		}
 		return ret;
 	}
-		
+	
+	private String getCompusName() {
+		int t = (int)(getCompus()/Math.PI*8 + 8.5) % 16;
+		String[] name = {"南", "南南西", "南西", "西南西", "西", "西北西", "北西", "北北西", "北", "北北東", "北東", "東北東", "東", "東南東", "南東", "南南東"};
+		return name[t];
+	}
+	
+	private String getCompusString() {
+		int t = (int)Math.floor(Math.toDegrees(getCompus())+0.5);
+		if(0<=t && t<=90) {
+			return "N" + t + "E";
+		} else if(t>90) {
+			return "S" + (180-t) + "E";
+		} else if(t>=-90) {
+			return "N" + (-t) + "W";
+		}
+		return "S" + (180+t) + "W";
+	}
+	
 	@Override
 	protected void onSizeChanged(int width, int height, int oldwidth, int oldheight) {
 		this.width = width;
@@ -178,7 +196,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 			message = "花火を画面中央に入れ、音がしたら画面をタッチ(" + 
 				getTime() + "ms, 仰角:" + 
 				(int)(Math.toDegrees(getElevation())+0.5) + "度, 方位:" +
-				(int)(Math.toDegrees(getCompus())+0.5)+ "度)";
+				getCompusString();
 		} else {
 			//タイマ停止中のメッセージ
 			message = "花火が見えたら画面をタッチ";
@@ -214,13 +232,14 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		String message = String.format(
 				"遅延時間:%dms\n" +
 				"仰角:%.1f度\n" +
-				"気温:%.1f度\n" +
-				"音速:%.1fm/s\n" +
+				"音速:%.1fm/s(気温%.1f度時)\n" +
 				"直線距離:%.1fm\n" +
 				"高さ:%.1fm\n" +
-				"距離:%.1fm",
-				time, theta/Math.PI*180, temp,
-				speed, d, h, l
+				"距離:%.1fm\n" +
+				"方位:%s(%s)",
+				time, Math.toDegrees(theta),
+				speed, temp, d, h, l,
+				getCompusName(), getCompusString()
 				);
 		alert(message);
 	}
