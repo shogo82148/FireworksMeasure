@@ -33,6 +33,8 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	private float temp = 20;			//現在の温度
 	private List<Sensor> acc_sensors;	//加速度センサ
 	private float[] accValues = new float[3];	//加速度センサの値
+	private List<Sensor> mag_sensors;	//磁気センサ
+	private float[] magValues = new float[3];	//磁気センサの値
 	
 	//GPS情報
 	private Location location;
@@ -65,6 +67,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		manager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
 		acc_sensors = manager.getSensorList(Sensor.TYPE_ACCELEROMETER);
 		temp_sensors = manager.getSensorList(Sensor.TYPE_TEMPERATURE);
+		mag_sensors = manager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD);
 		
 		stopTimer();
 	}
@@ -81,7 +84,10 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		startTime = SystemClock.uptimeMillis();
 		
 		//センサの取得開始
-		manager.registerListener(this, acc_sensors.get(0), SensorManager.SENSOR_DELAY_GAME);
+		if(acc_sensors!=null && acc_sensors.size()>0)
+			manager.registerListener(this, acc_sensors.get(0), SensorManager.SENSOR_DELAY_GAME);
+		if(mag_sensors!=null && mag_sensors.size()>0)
+			manager.registerListener(this, mag_sensors.get(0), SensorManager.SENSOR_DELAY_GAME);
 		if(temp_sensors!=null && temp_sensors.size()>0)
 			manager.registerListener(this, temp_sensors.get(0), SensorManager.SENSOR_DELAY_UI);
 	}
@@ -222,6 +228,10 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 			accValues[0] = event.values[0];
 			accValues[1] = event.values[1];
 			accValues[2] = event.values[2];
+		} else if(type==Sensor.TYPE_MAGNETIC_FIELD) {
+			magValues[0] = event.values[0];
+			magValues[1] = event.values[1];
+			magValues[2] = event.values[2];
 		} else if(type==Sensor.TYPE_TEMPERATURE){
 			temp = event.values[0];
 		}
