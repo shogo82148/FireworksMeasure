@@ -252,15 +252,55 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 				//Do Nothing
 			}
 		});
-		/*if(location!=null)*/ {
+		if(location!=null) {
+			double latitude = location.getLatitude();
+			double longitude = location.getLongitude();
+			double rad_latitude = Math.toRadians(latitude);
+			double rad_longitude = Math.toRadians(longitude);
+			double x = 0, y = 0, z = 1; //y:南北, z:経度0度, x経度90度
+			double xx, yy, zz;
+			
+			//x軸回りの回転
+			xx = x;
+			yy =  y*Math.cos(l/earthR) + z*Math.sin(l/earthR);
+			zz = -y*Math.sin(l/earthR) + z*Math.cos(l/earthR);
+			
+			//z軸周りの回転
+			x =  xx*Math.cos(compus) + yy*Math.sin(compus);
+			y = -xx*Math.sin(compus) + yy*Math.cos(compus);
+			z = zz;
+			
+			//緯度方向への回転
+			xx = x;
+			yy =  y*Math.cos(rad_latitude) + z*Math.sin(rad_latitude);
+			zz = -y*Math.sin(rad_latitude) + z*Math.cos(rad_latitude);
+			
+			//経度方向への回転
+			x = xx*Math.cos(rad_longitude) + zz*Math.sin(rad_longitude);
+			y = yy;
+			z = -xx*Math.sin(rad_longitude) + zz*Math.cos(rad_longitude);
+			
+			//花火の緯度経度を算出
+			double fw_latitude = Math.toDegrees(Math.asin(y));
+			double fw_longitude = Math.toDegrees(Math.atan2(x, z)); 
+			//Toast.makeText(getContext(), fw_latitude + "," + fw_longitude, Toast.LENGTH_LONG).show();
+			
+			//インテント作成
+			final Intent intent = new Intent(getContext(),
+		       		MapActivity.class);
+			intent.putExtra("latitude", latitude);
+			intent.putExtra("longitude", longitude);
+			intent.putExtra("fw_latitude", fw_latitude);
+			intent.putExtra("fw_longitude", fw_longitude);
+		
 			builder.setNegativeButton("地図を表示", new DialogInterface.OnClickListener() {
+				private Intent i;
+				{
+					i = intent;
+				}
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					Intent intent = new Intent(getContext(),
-				       		MapActivity.class);
-					intent.putExtra("latitude", 37.436567);//location.getLatitude());
-					intent.putExtra("longitude", 138.839035);//location.getLongitude());
-					getContext().startActivity(intent);
+					getContext().startActivity(i);
 				}
 			});
 		}

@@ -30,8 +30,7 @@ public class MapActivity extends com.google.android.maps.MapActivity{
         Intent intent = getIntent();
 		latitude = intent.getDoubleExtra("latitude", 0);
 		longitude = intent.getDoubleExtra("longitude", 0);
-		Toast.makeText(this, latitude+","+longitude, Toast.LENGTH_LONG).show();
-        
+		
 		//表示位置の設定
 		GeoPoint gp = 
 			new GeoPoint((int)(latitude*1E6),
@@ -39,10 +38,20 @@ public class MapActivity extends com.google.android.maps.MapActivity{
         m_controller.setCenter(gp);
 		
      // 画像を地図上に配置するオーバーレイ
-        Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.violet);
-        MapOverlay overlay = new MapOverlay(bmp, gp);
-        List<com.google.android.maps.Overlay> list = m.getOverlays();
-        list.add(overlay);
+    	List<com.google.android.maps.Overlay> list = m.getOverlays();
+        {
+        	Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.violet);
+        	MapOverlay overlay = new MapOverlay(bmp, gp);
+        	list.add(overlay);
+        }
+        {
+        	Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.violet);
+        	MapOverlay overlay = new MapOverlay(bmp, new GeoPoint(
+        			(int)(intent.getDoubleExtra("fw_latitude", 0)*1E6),
+			        (int)(intent.getDoubleExtra("fw_longitude", 0)*1E6)
+			        )	);
+        	list.add(overlay);
+        }        
     }
     
 	@Override
