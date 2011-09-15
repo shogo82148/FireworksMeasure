@@ -294,13 +294,9 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 			intent.putExtra("fw_longitude", fw_longitude);
 		
 			builder.setNegativeButton("ínê}Çï\é¶", new DialogInterface.OnClickListener() {
-				private Intent i;
-				{
-					i = intent;
-				}
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					getContext().startActivity(i);
+					getContext().startActivity(intent);
 				}
 			});
 		}
