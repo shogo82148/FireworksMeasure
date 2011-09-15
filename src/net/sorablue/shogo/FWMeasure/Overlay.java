@@ -129,7 +129,23 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	 * @return 北からの角度[rad]
 	 */
 	private double getCompus() {
-		return orientation[0];
+		/* 国土地理院　地磁気測量 2000年のデータに基づく近似
+		 * D2000.0=7°37.142'+21.622'Δφ-7.672'Δλ+0.442'Δφ2-0.320'ΔφΔλ-0.675'Δλ2
+		 * Δφ=φ-37°N 、Δλ=λ-138°E */
+		double latitude = 0, longitude = 0;
+		if(location!=null) {
+			latitude = location.getLatitude() - 37.0;
+			longitude = location.getLongitude() - 138.0;
+		}
+		double d = 7.61903 + 0.36037 * latitude - 0.12787 * longitude
+			+ 0.00737 * latitude * latitude
+			- 0.00533 * latitude * longitude
+			- 0.01125 * longitude * longitude;
+		double ret = orientation[0] - Math.toRadians(d);
+		if(ret<-Math.PI) {
+			ret += 2 * Math.PI;
+		}
+		return ret;
 	}
 		
 	@Override
