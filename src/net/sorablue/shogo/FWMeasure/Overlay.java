@@ -173,26 +173,8 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	public boolean onTouchEvent(MotionEvent event) {
 		if(isRepeat) {
 			stopTimer();
-			long time = getTime(); //経過時間
-			double speed = 331.5+0.6*temp;	//音速
-			double d = time * speed / 1000.0; //花火までの距離
-			double theta = getElevation(); //仰角
-			double dsin = d*Math.sin(theta);
-			double h = Math.sqrt(d*d+earthR*earthR+2*earthR*dsin)-earthR; //花火の高さ
-			double l = Math.acos((earthR+dsin)/(earthR+h))*earthR; //花火央までの距離
-			
-			String message = String.format(
-					"遅延時間:%dms\n" +
-					"仰角:%.1f度\n" +
-					"気温:%.1f度\n" +
-					"音速:%.1fm/s\n" +
-					"直線距離:%.1fm\n" +
-					"高さ:%.1fm\n" +
-					"距離:%.1fm",
-					time, theta/Math.PI*180, temp,
-					speed, d, h, l
-					);
-			alert(message);
+			/*if(location==null) showResult();
+			else*/ showMap();
 		} else {
 			startTimer();
 		}
@@ -200,12 +182,43 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		return super.onTouchEvent(event);
 	}
 	
+	private void showResult() {
+		long time = getTime(); //経過時間
+		double speed = 331.5+0.6*temp;	//音速
+		double d = time * speed / 1000.0; //花火までの距離
+		double theta = getElevation(); //仰角
+		double dsin = d*Math.sin(theta);
+		double h = Math.sqrt(d*d+earthR*earthR+2*earthR*dsin)-earthR; //花火の高さ
+		double l = Math.acos((earthR+dsin)/(earthR+h))*earthR; //花火央までの距離
+		
+		String message = String.format(
+				"遅延時間:%dms\n" +
+				"仰角:%.1f度\n" +
+				"気温:%.1f度\n" +
+				"音速:%.1fm/s\n" +
+				"直線距離:%.1fm\n" +
+				"高さ:%.1fm\n" +
+				"距離:%.1fm",
+				time, theta/Math.PI*180, temp,
+				speed, d, h, l
+				);
+		alert(message);
+	}
+	
+	private void showMap() {
+		Intent intent = new Intent(getContext(),
+	       		MapActivity.class);
+		intent.putExtra("latitude", 37.436567);//location.getLatitude());
+		intent.putExtra("longitude", 138.839035);//location.getLongitude());
+		getContext().startActivity(intent);
+	}
+	
 	/**
 	 * 測定結果ダイアログを表示する
 	 * @param message
 	 */
 	private void alert(String message) {
-		/*AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 		
 		builder.setTitle("測定結果");
 		builder.setMessage(message);
@@ -216,14 +229,6 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 			}
 		});
 		builder.create().show();
-		*/
-		try {
-		Intent intent = new Intent(getContext(),
-        		MapActivity.class);
-        getContext().startActivity(intent);
-		} catch(Exception e) {
-			Toast.makeText(getContext(), "Error:"+e, Toast.LENGTH_LONG).show();
-		}
 	}
 
 	@Override
