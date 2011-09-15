@@ -17,6 +17,8 @@
 package net.sorablue.shogo.FWMeasure;
 
 import android.app.Activity;
+import android.content.Context;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
@@ -29,10 +31,12 @@ import android.os.PowerManager.WakeLock;
  * activity. Inside of its window, it places a single view: an EditText that
  * displays and edits some internal text.
  */
-public class FWMeasureActivity extends Activity {
+public class FWMeasureActivity extends Activity{
 
 	private PowerManager pm;
 	private WakeLock lock;
+	private LocationManager locationManager;
+	private Overlay overlay;
 	
     public FWMeasureActivity() {
     }
@@ -43,9 +47,9 @@ public class FWMeasureActivity extends Activity {
         super.onCreate(savedInstanceState);
         
         //カメラ起動
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        Overlay overlay = new Overlay(this);
+        overlay = new Overlay(this);
         CameraPreview preview = new CameraPreview(this, overlay);
         setContentView(preview);
         
@@ -55,6 +59,22 @@ public class FWMeasureActivity extends Activity {
         //パワーマネージャを取得
         pm = (PowerManager)getSystemService(POWER_SERVICE);
         lock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "FWMeasure");
+    }
+    
+    @Override
+    public void onStart() {
+    	super.onStart();
+		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, // プロバイダ
+    		 0, // 通知のための最小時間間隔
+    		 0, // 通知のための最小距離間隔
+    		 overlay); // 位置情報リスナー
+    }
+    
+    @Override
+    public void onStop() {
+    	super.onStop();
+    	locationManager.removeUpdates(overlay);
     }
 
     @Override

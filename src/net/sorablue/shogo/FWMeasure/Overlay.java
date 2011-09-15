@@ -14,13 +14,16 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.hardware.Camera.PreviewCallback;
+import android.location.Location;
+import android.location.LocationListener;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
 
-public class Overlay extends View implements SensorEventListener, PreviewCallback {
+public class Overlay extends View implements SensorEventListener, PreviewCallback, LocationListener {
 	private final int REPEAT_INTERVAL = 100;
 	private final int MESSAGE_WHAT = 100;
 	
@@ -30,6 +33,9 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	private float temp = 20;			//現在の温度
 	private List<Sensor> acc_sensors;	//加速度センサ
 	private float[] accValues = new float[3];	//加速度センサの値
+	
+	//GPS情報
+	private Location location;
 	
 	//private int threshold = 20;
 	//private long last_light = Long.MAX_VALUE;
@@ -91,11 +97,10 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	
 	/**
 	 * タイマが起動してからの経過時間を返す
-	 * @return タイマを開始してからの経過時間(ms)。タイマが動作していない場合は0。
+	 * @return タイマを開始してからの経過時間(ms)。
 	 */
 	private long getTime() {
-		if(isRepeat) return SystemClock.uptimeMillis() - startTime;
-		return 0;
+		return SystemClock.uptimeMillis() - startTime;
 	}
 	
 	/**
@@ -135,6 +140,10 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		paint.setColor(Color.WHITE);
 		canvas.drawLine(0, height/2, width, height/2, paint);
 		canvas.drawLine(width/2, 0, width/2, height, paint);
+		
+		if(location == null) {
+			canvas.drawText("現在位置を取得中...", 0, 15, paint);
+		}
 		
 		String message = "";
 		if(isRepeat) {
@@ -233,5 +242,28 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		long t = (long)(threshold*frameSize);
 		if(count-last_light>t) startTimer();
 		last_light = count;*/
+	}
+
+	@Override
+	public void onLocationChanged(Location location) {
+		this.location = location;
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// TODO Auto-generated method stub
+		
 	}
 }
