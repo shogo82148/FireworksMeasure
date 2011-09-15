@@ -37,6 +37,7 @@ public class FWMeasureActivity extends Activity{
 	private WakeLock lock;
 	private LocationManager locationManager;
 	private Overlay overlay;
+	private CameraPreview preview;
 	
     public FWMeasureActivity() {
     }
@@ -47,10 +48,10 @@ public class FWMeasureActivity extends Activity{
         super.onCreate(savedInstanceState);
         
         //カメラ起動
-        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         overlay = new Overlay(this);
-        CameraPreview preview = new CameraPreview(this, overlay);
+        preview = new CameraPreview(this, overlay);
         setContentView(preview);
         
         //オーバーレイ追加
@@ -60,7 +61,7 @@ public class FWMeasureActivity extends Activity{
         pm = (PowerManager)getSystemService(POWER_SERVICE);
         lock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "FWMeasure");
     }
-    
+
     @Override
     public void onStart() {
     	super.onStart();

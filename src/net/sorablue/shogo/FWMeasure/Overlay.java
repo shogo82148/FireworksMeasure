@@ -5,6 +5,7 @@ import java.util.List;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -22,6 +23,7 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 public class Overlay extends View implements SensorEventListener, PreviewCallback, LocationListener {
 	private final int REPEAT_INTERVAL = 100;
@@ -203,7 +205,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	 * @param message
 	 */
 	private void alert(String message) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+		/*AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 		
 		builder.setTitle("‘ª’èŒ‹‰Ê");
 		builder.setMessage(message);
@@ -214,6 +216,14 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 			}
 		});
 		builder.create().show();
+		*/
+		try {
+		Intent intent = new Intent(getContext(),
+        		MapActivity.class);
+        getContext().startActivity(intent);
+		} catch(Exception e) {
+			Toast.makeText(getContext(), "Error:"+e, Toast.LENGTH_LONG).show();
+		}
 	}
 
 	@Override
