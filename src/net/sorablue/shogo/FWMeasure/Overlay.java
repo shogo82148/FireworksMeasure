@@ -23,7 +23,6 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
 public class Overlay extends View implements SensorEventListener, PreviewCallback, LocationListener {
 	private final int REPEAT_INTERVAL = 100;
@@ -54,6 +53,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	protected long startTime;	//計測を開始したときの時刻
 	
 	private final double earthR = 6378137; //地球の半径
+	private final boolean debug = true;
 	
 	private Handler handler = new Handler(){
         @Override
@@ -252,9 +252,9 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 				//Do Nothing
 			}
 		});
-		if(location!=null) {
-			double latitude = location.getLatitude();
-			double longitude = location.getLongitude();
+		if(location!=null || debug) {
+			double latitude = (location==null) ? 37.425382 : location.getLatitude();
+			double longitude = (location==null) ? 138.778723 : location.getLongitude();
 			double rad_latitude = Math.toRadians(latitude);
 			double rad_longitude = Math.toRadians(longitude);
 			double x = 0, y = 0, z = 1; //y:南北, z:経度0度, x経度90度
