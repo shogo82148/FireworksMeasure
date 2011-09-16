@@ -21,6 +21,6 @@ public class MapOverlay extends Overlay {
 	  public void draw(Canvas canvas, MapView mapView, boolean shadow) {
 	    Projection pro = mapView.getProjection();//Mapと画面の位置を計算するオブジェクト
 	    Point p = pro.toPixels(gpoint, null);    //ロケーションから、表示する位置を計算する
-	    canvas.drawBitmap(bmp, p.x, p.y, null);  //表示する場所へ画像を配置する。
+	    canvas.drawBitmap(bmp, p.x-bmp.getWidth()/2, p.y-bmp.getHeight(), null);  //表示する場所へ画像を配置する。
 	  }
 }

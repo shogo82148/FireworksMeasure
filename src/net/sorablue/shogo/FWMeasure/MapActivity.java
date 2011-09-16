@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
@@ -38,14 +37,15 @@ public class MapActivity extends com.google.android.maps.MapActivity{
         m_controller.setCenter(gp);
 		
      // 画像を地図上に配置するオーバーレイ
+      //icons from http://mapicons.nicolasmollet.com/
     	List<com.google.android.maps.Overlay> list = m.getOverlays();
         {
-        	Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.violet);
+        	Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.flag);
         	MapOverlay overlay = new MapOverlay(bmp, gp);
         	list.add(overlay);
         }
         {
-        	Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.violet);
+        	Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.fireworks);
         	MapOverlay overlay = new MapOverlay(bmp, new GeoPoint(
         			(int)(intent.getDoubleExtra("fw_latitude", 0)*1E6),
 			        (int)(intent.getDoubleExtra("fw_longitude", 0)*1E6)
