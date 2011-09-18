@@ -53,7 +53,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	protected long startTime;	//計測を開始したときの時刻
 	
 	private final double earthR = 6378137; //地球の半径
-	private final boolean debug = true;
+	private final boolean debug = false;
 	
 	private Handler handler = new Handler(){
         @Override

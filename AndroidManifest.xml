@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="net.sorablue.shogo.FWMeasure" android:versionName="テスト版" android:versionCode="0">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="net.sorablue.shogo.FWMeasure" android:versionName="テスト版" android:versionCode="1">
 
 <uses-permission android:name="android.permission.CAMERA"></uses-permission>
 <uses-permission android:name="android.permission.WAKE_LOCK"/>
@@ -7,7 +7,7 @@
 <uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION"></uses-permission>
 
-    <application android:label="@string/skeleton_app" android:icon="@drawable/fireworks">
+    <application android:label="@string/skeleton_app" android:icon="@drawable/fireworks" android:debuggable="false">
 	<uses-library android:name="com.google.android.maps"/>
         <activity android:screenOrientation="landscape" android:name="FWMeasureActivity">
 
