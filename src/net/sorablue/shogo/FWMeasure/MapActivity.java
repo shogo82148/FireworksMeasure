@@ -6,14 +6,18 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 
 public class MapActivity extends com.google.android.maps.MapActivity{
+	private static final int MENU_ID_SHARE = (Menu.FIRST + 1);
 	private MapController m_controller;
 	private double latitude, longitude;
+	private String shareString;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,12 +55,43 @@ public class MapActivity extends com.google.android.maps.MapActivity{
 			        (int)(intent.getDoubleExtra("fw_longitude", 0)*1E6)
 			        )	);
         	list.add(overlay);
-        }        
+        	shareString = String.format("花火の打ち上げ場所を調べてみたよ！(%.6f,%.6f) #FireworksMeasure",
+        				intent.getDoubleExtra("fw_latitude", 0), intent.getDoubleExtra("fw_longitude", 0));
+        }
     }
     
 	@Override
 	protected boolean isRouteDisplayed() {
 		return false;
 	}
+	
+	// オプションメニューが最初に呼び出される時に1度だけ呼び出されます
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // メニューアイテムを追加します
+        menu.add(Menu.NONE, MENU_ID_SHARE, Menu.NONE, "シェア");
+        return super.onCreateOptionsMenu(menu);
+    }
 
+    // オプションメニューアイテムが選択された時に呼び出されます
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        boolean ret = true;
+        switch (item.getItemId()) {
+        default:
+            ret = super.onOptionsItemSelected(item);
+            break;
+        case MENU_ID_SHARE:
+            share();
+            break;
+        }
+        return ret;
+    }
+    
+    private void share() {
+		final Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+		intent.setType("text/plain");
+		intent.putExtra(Intent.EXTRA_TEXT, shareString);
+		startActivity(Intent.createChooser(intent, "シェア"));
+    }
 }
