@@ -25,4 +25,5 @@
 
     <!-- Retrieved via Resources.getDrawable() and friends. -->
     <drawable name="semi_black">#80000000</drawable>
+    <color name="aa">#bbbbbb</color>
 </resources>
