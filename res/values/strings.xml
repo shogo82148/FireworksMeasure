@@ -1,50 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Simple strings. -->
-    <string name="app_name">花火距離計算</string>
+    <string name="app_name">FireworksMeasure</string>
     
-    <string name="locating_msg">現在位置を取得中...</string>
-    <string name="see_fw_msg">花火が見えたら画面をタッチ</string>
-    <string name="center_fw_msg">花火を画面中央に入れ、音がしたら画面をタッチ(%s)</string>
+    <string name="locating_msg">Now Locating...</string>
+    <string name="see_fw_msg">Touch the display when you see fireworks</string>
+    <string name="center_fw_msg">Touch the display again(%s)</string>
     
     <string name="unit_ms">ms</string>
-    <string name="unit_angle">度</string>
+    <string name="unit_angle">degree</string>
     
-    <string name="elevation">仰角</string>
-    <string name="compus">方位</string>
-    <string name="delay_time">遅延時間</string>
+    <string name="elevation">Elevation</string>
+    <string name="compus">Direction</string>
+    <string name="delay_time">Delay Time</string>
     
-	<string name="delay_time_result">遅延時間:%dms\n</string>
-    <string name="elevation_result">仰角:%.1f度\n</string>
-    <string name="sound_speed_result">音速:%.1fm/s</string>
-    <string name="temp_result">(気温%.1f度時)\n</string>
-    <string name="one_line_distance_result">直線距離:%.1fm\n</string>
-    <string name="height_result">高さ:%.1fm\n</string>
-    <string name="distance_result">距離:%.1fm\n</string>
-    <string name="compus_result">方位:%s</string>
+	<string name="delay_time_result">Delay Time:%dms\n</string>
+    <string name="elevation_result">Elevation:%.1f degree\n</string>
+    <string name="sound_speed_result">Sound Speed:%.1fm/s</string>
+    <string name="temp_result">(Temp.%.1f degree)\n</string>
+    <string name="one_line_distance_result">One Line Distance:%.1fm\n</string>
+    <string name="height_result">Height:%.1fm\n</string>
+    <string name="distance_result">Distance:%.1fm\n</string>
+    <string name="compus_result">Direction:%s</string>
     <string name="compus_result2">(%s)</string>
     
-    <string name="result_title">測定結果</string>
-    <string name="remeasure_button">再計測</string>
-    <string name="map_button">地図を表示</string>
+    <string name="result_title">The Results</string>
+    <string name="remeasure_button">Again</string>
+    <string name="map_button">Show a Map</string>
         
     <string-array name="compus_names">
-        <item>南</item>s
-        <item>南南西</item>
-        <item>南西</item>
-        <item>西南西</item>
-        <item>西</item>
-        <item>西北西</item>
-        <item>北西</item>
-        <item>北北西</item>
-        <item>北</item>
-        <item>北北東</item>
-        <item>北東</item>
-        <item>東北東</item>
-        <item>東</item>
-        <item>東南東</item>
-        <item>南東</item>
-        <item>南南東</item>
+        <item>S</item>
+        <item>SSW</item>
+        <item>SW</item>
+        <item>WSW</item>
+        <item>W</item>
+        <item>WNW</item>
+        <item>NW</item>
+        <item>NNW</item>
+        <item>N</item>
+        <item>NNE</item>
+        <item>NE</item>
+        <item>ENE</item>
+        <item>E</item>
+        <item>ESE</item>
+        <item>SE</item>
+        <item>SSE</item>
     </string-array>
 </resources>
 
