@@ -28,6 +28,8 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	private final int REPEAT_INTERVAL = 100;
 	private final int MESSAGE_WHAT = 100;
 	
+	private Context context;
+	
 	//センサを扱うためのフィールド
 	private SensorManager manager;		//センサ管理のクラス
 	private List<Sensor> temp_sensors;	//温度センサ
@@ -39,7 +41,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	
 	//端末の姿勢
 	private float[] tmpR = new float[16];
-	private float[] R = new float[16];
+	private float[] Rotation = new float[16];
 	private float[] orientation = new float[3];
 	
 	//GPS情報
@@ -67,6 +69,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	
 	public Overlay(Context context) {
 		super(context);
+		this.context = context;
 		
 		setDrawingCacheEnabled(true);
 		
@@ -150,7 +153,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	
 	private String getCompusName(double compus) {
 		int t = (int)(compus/Math.PI*8 + 8.5) % 16;
-		String[] name = {"南", "南南西", "南西", "西南西", "西", "西北西", "北西", "北北西", "北", "北北東", "北東", "東北東", "東", "東南東", "南東", "南南東"};
+		String[] name = context.getResources().getStringArray(R.array.compus_names);
 		return name[t];
 	}
 	
@@ -187,19 +190,22 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		canvas.drawLine(width/2, 0, width/2, height, paint);
 		
 		if(location == null) {
-			canvas.drawText("現在位置を取得中...", 0, 15, paint);
+			canvas.drawText(context.getString(R.string.locating_msg), 0, 15, paint);
 		}
 		
 		String message = "";
 		if(isRepeat) {
 			//タイマ動作中のメッセージ
-			message = "花火を画面中央に入れ、音がしたら画面をタッチ(" + 
-				getTime() + "ms, 仰角:" + 
-				(int)(Math.toDegrees(getElevation())+0.5) + "度, 方位:" +
+			message = getTime() + context.getString(R.string.unit_ms) + ", " +
+				context.getString(R.string.elevation) + ":" + 
+				(int)(Math.toDegrees(getElevation())+0.5) + 
+				context.getString(R.string.unit_angle) + ", " +
+				context.getString(R.string.compus) + ":" +
 				getCompusString(getCompus());
+			message = String.format(context.getString(R.string.center_fw_msg), message);
 		} else {
 			//タイマ停止中のメッセージ
-			message = "花火が見えたら画面をタッチ";
+			message = context.getString(R.string.see_fw_msg);
 		}
 		canvas.drawText(message, 0, height-5, paint);
 	}
@@ -229,24 +235,21 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		double l = Math.acos((earthR+dsin)/(earthR+h))*earthR; //花火央までの距離
 		double compus = getCompus();
 		
-		String message = String.format(
-				"遅延時間:%dms\n" +
-				"仰角:%.1f度\n" +
-				"音速:%.1fm/s(気温%.1f度時)\n" +
-				"直線距離:%.1fm\n" +
-				"高さ:%.1fm\n" +
-				"距離:%.1fm\n" +
-				"方位:%s(%s)",
-				time, Math.toDegrees(theta),
-				speed, temp, d, h, l,
-				getCompusName(compus), getCompusString(compus)
-				);
+		String message = context.getString(R.string.delay_time_result, time);
+		message += context.getString(R.string.elevation_result, Math.toDegrees(theta));
+		message += context.getString(R.string.sound_speed_result, speed);
+		message += context.getString(R.string.temp_result, temp);		
+		message += context.getString(R.string.one_line_distance_result, d);
+		message += context.getString(R.string.height_result, h);
+		message += context.getString(R.string.distance_result, l);
+		message += context.getString(R.string.compus_result, getCompusName(compus));
+		message += context.getString(R.string.compus_result2, getCompusString(compus));
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 		
-		builder.setTitle("測定結果");
+		builder.setTitle(R.string.result_title);
 		builder.setMessage(message);
-		builder.setPositiveButton("再計測", new DialogInterface.OnClickListener() {
+		builder.setPositiveButton(R.string.remeasure_button, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				//Do Nothing
@@ -293,7 +296,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 			intent.putExtra("fw_latitude", fw_latitude);
 			intent.putExtra("fw_longitude", fw_longitude);
 		
-			builder.setNegativeButton("地図を表示", new DialogInterface.OnClickListener() {
+			builder.setNegativeButton(R.string.map_button, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					getContext().startActivity(intent);
@@ -325,8 +328,8 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		
 		SensorManager.getRotationMatrix(tmpR, null,
 			accValues, magValues);
-		SensorManager.remapCoordinateSystem(tmpR, SensorManager.AXIS_Z, SensorManager.AXIS_MINUS_X, R);
-		SensorManager.getOrientation(R, orientation);
+		SensorManager.remapCoordinateSystem(tmpR, SensorManager.AXIS_Z, SensorManager.AXIS_MINUS_X, Rotation);
+		SensorManager.getOrientation(Rotation, orientation);
 	}
 	
 	@Override

@@ -1,29 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2007 The Android Open Source Project
-
-     Licensed under the Apache License, Version 2.0 (the "License");
-     you may not use this file except in compliance with the License.
-     You may obtain a copy of the License at
-  
-          http://www.apache.org/licenses/LICENSE-2.0
-  
-     Unless required by applicable law or agreed to in writing, software
-     distributed under the License is distributed on an "AS IS" BASIS,
-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-     See the License for the specific language governing permissions and
-     limitations under the License.
--->
-
-<!-- This file contains resource definitions for displayed strings, allowing
-     them to be changed based on the locale and options. -->
-
 <resources>
     <!-- Simple strings. -->
-    <string name="skeleton_app">花火距離計算</string>
-    <string name="back">Back</string>
-    <string name="clear">Clear</string>
-
-    <!-- This is a complex string containing style runs. -->
-    <string name="main_label">Hello <u>th<ignore>e</ignore>re</u>, <i>you</i> <b>Activity</b>!</string>
+    <string name="app_name">花火距離計算</string>
+    
+    <string name="locating_msg">現在位置を取得中...</string>
+    <string name="see_fw_msg">花火が見えたら画面をタッチ</string>
+    <string name="center_fw_msg">花火を画面中央に入れ、音がしたら画面をタッチ(%s)</string>
+    
+    <string name="unit_ms">ms</string>
+    <string name="unit_angle">度</string>
+    
+    <string name="elevation">仰角</string>
+    <string name="compus">方位</string>
+    <string name="delay_time">遅延時間</string>
+    
+	<string name="delay_time_result">遅延時間:%dms\n</string>
+    <string name="elevation_result">仰角:%.1f度\n</string>
+    <string name="sound_speed_result">音速:%.1fm/s</string>
+    <string name="temp_result">(気温%.1f度時)\n</string>
+    <string name="one_line_distance_result">直線距離:%.1fm\n</string>
+    <string name="height_result">高さ:%.1fm\n</string>
+    <string name="distance_result">距離:%.1fm\n</string>
+    <string name="compus_result">方位:%s</string>
+    <string name="compus_result2">(%s)</string>
+    
+    <string name="result_title">測定結果</string>
+    <string name="remeasure_button">再計測</string>
+    <string name="map_button">地図を表示</string>
+        
+    <string-array name="compus_names">
+        <item>南</item>s
+        <item>南南西</item>
+        <item>南西</item>
+        <item>西南西</item>
+        <item>西</item>
+        <item>西北西</item>
+        <item>北西</item>
+        <item>北北西</item>
+        <item>北</item>
+        <item>北北東</item>
+        <item>北東</item>
+        <item>東北東</item>
+        <item>東</item>
+        <item>東南東</item>
+        <item>南東</item>
+        <item>南南東</item>
+    </string-array>
 </resources>
 
