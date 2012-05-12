@@ -2,3 +2,6 @@
 /bin
 Thumbs.db
 R.java
+/gen
+.settings
+*~
