@@ -250,7 +250,6 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		builder.setTitle(R.string.result_title);
 		builder.setMessage(message);
 		builder.setPositiveButton(R.string.remeasure_button, new DialogInterface.OnClickListener() {
-			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				//Do Nothing
 			}
@@ -297,7 +296,6 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 			intent.putExtra("fw_longitude", fw_longitude);
 		
 			builder.setNegativeButton(R.string.map_button, new DialogInterface.OnClickListener() {
-				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					getContext().startActivity(intent);
 				}
@@ -306,12 +304,10 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		builder.create().show();
 	}
 	
-	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// Do Nothing
 	}
 
-	@Override
 	public void onSensorChanged(SensorEvent event) {
 		int type = event.sensor.getType();
 		if(type==Sensor.TYPE_ACCELEROMETER) {
@@ -332,7 +328,6 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		SensorManager.getOrientation(Rotation, orientation);
 	}
 	
-	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) {
 		return ;
 		//ToDo: ÉvÉåÉrÉÖÅ[âfëúÇâêÕÇµÇƒé©ìÆâªÇ≈Ç´ÇÈÇ∆Ç¢Ç¢Ç»
@@ -349,24 +344,20 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		last_light = count;*/
 	}
 
-	@Override
 	public void onLocationChanged(Location location) {
 		this.location = location;
 	}
 
-	@Override
 	public void onProviderDisabled(String provider) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void onProviderEnabled(String provider) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		// TODO Auto-generated method stub
 		

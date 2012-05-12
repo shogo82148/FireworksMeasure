@@ -59,7 +59,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         return optimalSize;
     }
 	
-	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		try {
 			camera = Camera.open();
@@ -82,7 +81,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 		}
 	}
 
-	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
 		camera.stopPreview();
@@ -97,7 +95,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 		camera.setPreviewCallback(previewCallback);
 	}
 
-	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		camera.stopPreview();
 		camera.release();
