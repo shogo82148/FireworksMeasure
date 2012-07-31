@@ -18,20 +18,20 @@ package net.sorablue.shogo.FWMeasure;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.ViewGroup.LayoutParams;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 
-/**
- * This class provides a basic demonstration of how to write an Android
- * activity. Inside of its window, it places a single view: an EditText that
- * displays and edits some internal text.
- */
 public class FWMeasureActivity extends Activity{
+	private static final int MENU_ID_SETTING = (Menu.FIRST + 1);
 
 	private PowerManager pm;
 	private WakeLock lock;
@@ -89,5 +89,34 @@ public class FWMeasureActivity extends Activity{
     protected void onPause() {
     	super.onPause();
         lock.release();
+    }
+    
+	// オプションメニューが最初に呼び出される時に1度だけ呼び出されます
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // メニューアイテムを追加します
+        menu.add(Menu.NONE, MENU_ID_SETTING, Menu.NONE, "設定");
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    // オプションメニューアイテムが選択された時に呼び出されます
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        boolean ret = true;
+        switch (item.getItemId()) {
+        default:
+            ret = super.onOptionsItemSelected(item);
+            break;
+        case MENU_ID_SETTING:
+            showSettingActivity();
+            break;
+        }
+        return ret;
+    }
+
+    private void showSettingActivity() {
+		final Intent intent = new Intent(this,
+	       		SettingActivity.class);
+		startActivity(intent);
     }
 }

@@ -46,5 +46,8 @@
         <item>SE</item>
         <item>SSE</item>
     </string-array>
+    
+    <!-- Setting Activity -->
+    <string name="buttonSetPlace">Location Setting</string>
 </resources>
 
