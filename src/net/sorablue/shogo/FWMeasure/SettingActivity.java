@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 public class SettingActivity extends Activity {
 	static final int SETTING_LOCATION = 0;
@@ -92,6 +93,67 @@ public class SettingActivity extends Activity {
 						editor.commit();
 					}
 				});
+        
+        CheckBox checkSoundDetect = (CheckBox)findViewById(R.id.checkSoundDetect);
+        checkSoundDetect.setChecked(settings.getBoolean("enableSoundDetect", false));
+        checkSoundDetect.setOnCheckedChangeListener(
+        		new CompoundButton.OnCheckedChangeListener() {
+					@Override
+					public void onCheckedChanged(CompoundButton buttonView,
+							boolean isChecked) {
+						editor.putBoolean("enableSoundDetect", isChecked);
+						editor.commit();
+					}
+        		});
+        SeekBar seekBarSoundThreshold = (SeekBar)findViewById(R.id.seekBarSoundThreshold);
+        seekBarSoundThreshold.setMax(255);
+        seekBarSoundThreshold.setProgress(settings.getInt("soundThreshold", 0));
+        seekBarSoundThreshold.setOnSeekBarChangeListener(
+        		new SeekBar.OnSeekBarChangeListener() {
+					
+					@Override
+					public void onStopTrackingTouch(SeekBar seekBar) {
+						// do nothing
+					}
+					
+					@Override
+					public void onStartTrackingTouch(SeekBar seekBar) {
+						// do nothing
+					}
+					
+					@Override
+					public void onProgressChanged(SeekBar seekBar, int progress,
+							boolean fromUser) {
+						editor.putInt("soundThreshold", progress);
+						editor.commit();
+					}
+				});
+        SeekBar seekBarFrequency = (SeekBar)findViewById(R.id.seekBarFrequency);
+        seekBarFrequency.setMax(500);
+        seekBarFrequency.setProgress(settings.getInt("frequency", 1));
+        seekBarFrequency.setOnSeekBarChangeListener(
+        		new SeekBar.OnSeekBarChangeListener() {
+					
+					@Override
+					public void onStopTrackingTouch(SeekBar seekBar) {
+						// do nothing
+					}
+					
+					@Override
+					public void onStartTrackingTouch(SeekBar seekBar) {
+						// do nothing
+					}
+					
+					@Override
+					public void onProgressChanged(SeekBar seekBar, int progress,
+							boolean fromUser) {
+						editor.putInt("frequency", progress);
+						editor.commit();
+						TextView text = (TextView)findViewById(R.id.textFrequencyHz);
+						text.setText(progress + "Hz");
+					}
+				});
+
     }
     
     private void setPlace() {

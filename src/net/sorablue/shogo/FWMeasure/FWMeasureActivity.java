@@ -77,6 +77,7 @@ public class FWMeasureActivity extends Activity{
     @Override
     public void onStop() {
     	super.onStop();
+    	overlay.release();
     	locationManager.removeUpdates(overlay);
     }
 

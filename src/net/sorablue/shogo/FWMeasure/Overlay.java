@@ -20,6 +20,10 @@ import android.hardware.SensorManager;
 import android.hardware.Camera.PreviewCallback;
 import android.location.Location;
 import android.location.LocationListener;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.media.AudioRecord.OnRecordPositionUpdateListener;
+import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -32,6 +36,7 @@ import android.widget.Toast;
 public class Overlay extends View implements SensorEventListener, PreviewCallback, LocationListener {
 	private final int REPEAT_INTERVAL = 50;
 	private final int MESSAGE_WHAT = 100;
+	private static final int SOUND_RATE = 11025;
 	
 	private Context context;
 	
@@ -58,6 +63,15 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	
 	private long brightness = 0;
 	private long last_brightness = 0;
+	
+	private int bufferSizeRecord;
+	private short[] bufferRecord;
+	private AudioRecord audioRecord;
+	private boolean isRecording = false;
+	private boolean enableSoundDetect = false;
+	private int soundThreshold;
+	private int frequency = 100;
+	private int soundPower;
 
 	private int width, height;
 	
@@ -88,9 +102,73 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		acc_sensors = manager.getSensorList(Sensor.TYPE_ACCELEROMETER);
 		temp_sensors = manager.getSensorList(Sensor.TYPE_TEMPERATURE);
 		mag_sensors = manager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD);
-
+		
+		startRecording();
 		loadSettings();
 		stopTimer();
+	}
+	
+	private void startRecording() {
+		bufferSizeRecord = AudioRecord.getMinBufferSize(
+				SOUND_RATE,
+				AudioFormat.CHANNEL_IN_MONO,
+				AudioFormat.ENCODING_PCM_16BIT);
+		Log.d("record", "buffersize = " + bufferSizeRecord);
+		if(bufferSizeRecord>0) {
+			bufferRecord = new short[bufferSizeRecord / 2];
+			audioRecord = new AudioRecord(
+					MediaRecorder.AudioSource.MIC,
+					SOUND_RATE,
+					AudioFormat.CHANNEL_IN_MONO,
+					AudioFormat.ENCODING_PCM_16BIT,
+					bufferSizeRecord);
+			audioRecord.startRecording();
+			isRecording = true;
+			Thread thread = new Thread(new Runnable() {
+				public void run() {
+					int f = -1;
+					float[] sintable = new float[bufferRecord.length];
+					float[] costable = new float[bufferRecord.length];
+					int tablesize = 0;
+					while(isRecording) {
+						if(frequency>0 && f != frequency) {
+							float wavelength = (float)SOUND_RATE / frequency;
+							int numwave = (int)(bufferRecord.length / wavelength);
+							tablesize = (int)(wavelength * numwave);
+							double omega = 2 * Math.PI / numwave;
+							Log.d("record", "wavelength: " + frequency);
+							Log.d("record", "wavelength: " + wavelength);
+							Log.d("record", "numwave: " + numwave);
+							Log.d("record", "tablesize: " + tablesize);
+							Log.d("record", "omega: " + omega);
+							for(int i=0; i<tablesize; i++) {
+								sintable[i] = (float)(Math.sin(omega*i));
+								costable[i] = (float)(Math.cos(omega*i));
+							}
+							f = frequency;
+						}
+						int size = audioRecord.read(bufferRecord, 0, bufferRecord.length);
+						if(size==0)	continue;
+						
+						float sinpower = 0;
+						float cospower = 0;
+						for(int i=0; i<tablesize; i++) {
+							sinpower += sintable[i] * bufferRecord[i];
+							cospower += costable[i] * bufferRecord[i];
+						}
+						soundPower = (int)Math.sqrt(sinpower * sinpower + cospower * cospower) / 256;
+					}
+				} 
+			});
+			thread.start();
+		}
+	}
+	
+	public void release() {
+		isRecording = false;
+		audioRecord.stop();
+		audioRecord.release();
+		audioRecord = null;
 	}
 	
 	/**
@@ -238,6 +316,30 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 					(left+right)/2, top,
 					(left+right)/2, bottom,
 					paint);
+		}
+		
+		if(enableSoundDetect) {
+			float val = soundPower / 256.0f;
+			if(val<0) val = 0;
+			if(val>1) val = 1;
+			float left = width / 2.0f + 5;
+			float top = 20.0f;
+			float right = width - 5.0f;
+			float bottom = 30.0f;
+			Paint fill = new Paint();
+			fill.setColor(Color.YELLOW);
+			canvas.drawRect(
+					left,
+					top,
+					(right-left)*val+left,
+					bottom,
+					fill);
+			canvas.drawRect(
+					left,
+					top,
+					right,
+					bottom,
+					paint);			
 		}
 		
 		if(location == null) {
@@ -444,5 +546,10 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		enableAutoDetect = settings.getBoolean("enableAutoDetect", false);
 		detectionRange = settings.getInt("detectionRange", 0);
 		cameraThreshold = settings.getInt("cameraThreshold", 0);
+		enableSoundDetect = settings.getBoolean("enableSoundDetect", false);
+		soundThreshold = settings.getInt("soundThreshold", 0);
+		int f = settings.getInt("frequency", 0);
+		if(f<20) f=20;
+		frequency = f;
 	}
 }

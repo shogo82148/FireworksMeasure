@@ -52,6 +52,9 @@
     <string name="checkAutoDetect">花火を自動的に検出する</string>
     <string name="textDetectRange">検出範囲</string>
     <string name="textCameraThreshold">明るさの閾値</string>
+    <string name="checkSoundDetect">花火の音を検出する</string>
+    <string name="textSoundThreshold">音の閾値</string>
+    <string name="textFrequency">音の周波数</string>
     <string name="map_set_location">この位置を使う</string>
     <string name="map_set_myLocation">現在地へ移動</string>
 </resources>
