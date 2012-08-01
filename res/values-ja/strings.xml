@@ -49,5 +49,7 @@
 
     <!-- Setting Activity -->
     <string name="buttonSetPlace">現在地の設定</string>
+    <string name="map_set_location">この位置を使う</string>
+    <string name="map_set_myLocation">現在地へ移動</string>
 </resources>
 
