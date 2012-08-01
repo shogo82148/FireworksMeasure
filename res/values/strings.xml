@@ -3,7 +3,7 @@
     <!-- Simple strings. -->
     <string name="app_name">FireworksMeasure</string>
     
-    <string name="locating_msg">Now Locating...</string>
+    <string name="locating_msg">Now Locating…</string>
     <string name="see_fw_msg">Touch the display when you see fireworks</string>
     <string name="center_fw_msg">Touch the display again(%s)</string>
     

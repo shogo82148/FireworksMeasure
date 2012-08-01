@@ -3,7 +3,7 @@
     <!-- Simple strings. -->
     <string name="app_name">花火距離計算</string>
     
-    <string name="locating_msg">現在位置を取得中...</string>
+    <string name="locating_msg">現在位置を取得中…</string>
     <string name="see_fw_msg">花火が見えたら画面をタッチ</string>
     <string name="center_fw_msg">花火を画面中央に入れ、音がしたら画面をタッチ(%s)</string>
     
