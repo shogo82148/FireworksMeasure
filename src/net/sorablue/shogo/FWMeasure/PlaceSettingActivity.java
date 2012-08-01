@@ -45,11 +45,10 @@ public class PlaceSettingActivity extends MapActivity {
         list.add(location_overlay);
         
         Intent intent = getIntent();
-        double latitude = intent.getDoubleExtra("latitude", 0);
-    	double longitude = intent.getDoubleExtra("longitude", 0);
+        int latitude = intent.getIntExtra("latitude", 0);
+    	int longitude = intent.getIntExtra("longitude", 0);
 		GeoPoint gp = 
-				new GeoPoint((int)(latitude*1E6),
-					         (int)(longitude*1E6));
+				new GeoPoint(latitude, longitude);
 		Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.flag);
     	setting_overlay = new PlaceSettingOverlay(bmp, gp);
     	list.add(setting_overlay);
@@ -79,8 +78,8 @@ public class PlaceSettingActivity extends MapActivity {
         {
         	GeoPoint gp = setting_overlay.getLocation();
         	Intent intent = new Intent();
-        	intent.putExtra("latitude", gp.getLatitudeE6()*1e-6);
-        	intent.putExtra("longitude", gp.getLongitudeE6()*1e-6);
+        	intent.putExtra("latitude", gp.getLatitudeE6());
+        	intent.putExtra("longitude", gp.getLongitudeE6());
         	setResult(RESULT_OK, intent);
         	finish();
             break;

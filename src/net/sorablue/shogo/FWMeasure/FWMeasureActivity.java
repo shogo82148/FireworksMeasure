@@ -31,6 +31,8 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 
 public class FWMeasureActivity extends Activity{
+	public static final String PREFERENCES_NAME = "FireworksMeasure";
+	
 	private static final int MENU_ID_SETTING = (Menu.FIRST + 1);
 
 	private PowerManager pm;
