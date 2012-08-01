@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -254,9 +255,17 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 				//Do Nothing
 			}
 		});
-		if(location!=null || debug) {
-			double latitude = (location==null) ? 37.425382 : location.getLatitude();
-			double longitude = (location==null) ? 138.778723 : location.getLongitude();
+		{
+			double latitude = 0;
+			double longitude = 0;
+			if(location==null) {
+				SharedPreferences settings = context.getSharedPreferences(FWMeasureActivity.PREFERENCES_NAME, FWMeasureActivity.MODE_PRIVATE);
+				latitude = settings.getInt("latitude", 0) * 1e-6;
+				longitude = settings.getInt("longitude", 0) * 1e-6;
+			} else {
+				latitude = location.getLatitude();
+				longitude = location.getLongitude();
+			}
 			double rad_latitude = Math.toRadians(latitude);
 			double rad_longitude = Math.toRadians(longitude);
 			double x = 0, y = 0, z = 1; //y:南北, z:経度0度, x経度90度
