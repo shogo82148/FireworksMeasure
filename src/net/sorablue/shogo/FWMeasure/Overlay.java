@@ -123,6 +123,8 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 					bufferSizeRecord);
 			audioRecord.startRecording();
 			isRecording = true;
+			
+			final Handler mHandler = new Handler();
 			Thread thread = new Thread(new Runnable() {
 				public void run() {
 					int f = -1;
@@ -156,6 +158,14 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 							cospower += costable[i] * bufferRecord[i];
 						}
 						soundPower = (int)Math.sqrt(sinpower * sinpower + cospower * cospower) / 256;
+						if(soundPower > soundThreshold && isRepeat) {
+							mHandler.post(new Runnable() {
+						        public void run() {
+									stopTimer();
+									showResult();
+						        }
+						      });
+						}
 					}
 				} 
 			});
@@ -561,7 +571,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 
     protected void onResume() {
     	loadSettings();
-		startRecording();
+		if(enableSoundDetect) startRecording();
 
 		enableRefeshTime = true;
 		Message message = new Message();
