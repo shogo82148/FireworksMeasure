@@ -30,7 +30,7 @@ import android.view.View;
 import android.widget.Toast;
 
 public class Overlay extends View implements SensorEventListener, PreviewCallback, LocationListener {
-	private final int REPEAT_INTERVAL = 100;
+	private final int REPEAT_INTERVAL = 50;
 	private final int MESSAGE_WHAT = 100;
 	
 	private Context context;
@@ -201,13 +201,42 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		canvas.drawLine(0, height/2, width, height/2, paint);
 		canvas.drawLine(width/2, 0, width/2, height, paint);
 		
-		//©“®ŒŸo”ÍˆÍ‚ğ•`‰æ
 		if(enableAutoDetect) {
+			//©“®ŒŸo”ÍˆÍ‚ğ•`‰æ
 			canvas.drawRect(
 					width/2 - detectionRange,
 					height/2 - detectionRange,
 					width/2 + detectionRange,
 					height/2 + detectionRange,
+					paint);
+			//–¾‚é‚³‚ğ•\¦
+			final long threshold =
+					(long)cameraThreshold *
+					(2*detectionRange+1) * (2*detectionRange+1);
+			float val = (float)(brightness-last_brightness) / threshold / 2;
+			if(val<0) val = 0;
+			if(val>1) val = 1;
+			float left = width / 2.0f + 5;
+			float top = 5.0f;
+			float right = width - 5.0f;
+			float bottom = 15.0f;
+			Paint fill = new Paint();
+			fill.setColor(Color.YELLOW);
+			canvas.drawRect(
+					left,
+					top,
+					(right-left)*val+left,
+					bottom,
+					fill);
+			canvas.drawRect(
+					left,
+					top,
+					right,
+					bottom,
+					paint);
+			canvas.drawLine(
+					(left+right)/2, top,
+					(left+right)/2, bottom,
 					paint);
 		}
 		
@@ -359,8 +388,6 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	}
 	
 	public void onPreviewFrame(byte[] data, Camera camera) {
-		if(!enableAutoDetect || isRepeat) return ;
-		
 		final Size size = camera.getParameters().getPreviewSize();
 		final int width = size.width;
 		final int height = size.height;
@@ -376,16 +403,18 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 				count += 0xFF & data[offset];
 			}
 		}
+		last_brightness = brightness;
+		brightness = count;
+
+		if(!enableAutoDetect || isRepeat) return ;
+		
 		final long threshold =
 				(long)cameraThreshold *
 				(2*detectionRange+1) * (2*detectionRange+1);
-		last_brightness = brightness;
-		brightness = count;
 		if(brightness-last_brightness>threshold) {
 			startTimer();
 			last_brightness = 0;
 		}
-		Log.d("brightness", ""+(brightness / ((2*detectionRange+1) * (2*detectionRange+1))));
 	}
 
 	public void onLocationChanged(Location location) {
