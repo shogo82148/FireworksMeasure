@@ -20,6 +20,7 @@ import android.hardware.SensorManager;
 import android.hardware.Camera.PreviewCallback;
 import android.location.Location;
 import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.AudioRecord.OnRecordPositionUpdateListener;
@@ -103,14 +104,6 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		acc_sensors = manager.getSensorList(Sensor.TYPE_ACCELEROMETER);
 		temp_sensors = manager.getSensorList(Sensor.TYPE_TEMPERATURE);
 		mag_sensors = manager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD);
-		
-		enableRefeshTime = true;
-		Message message = new Message();
-        message.what = MESSAGE_WHAT;
-		handler.sendMessageDelayed(message, REPEAT_INTERVAL);
-		
-		startRecording();
-		loadSettings();
 		stopTimer();
 	}
 	
@@ -172,9 +165,11 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	
 	public void release() {
 		isRecording = false;
-		audioRecord.stop();
-		audioRecord.release();
-		audioRecord = null;
+		if(audioRecord != null) {
+			audioRecord.stop();
+			audioRecord.release();
+			audioRecord = null;
+		}
 		
 		enableRefeshTime = false;
 	}
@@ -324,7 +319,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		}
 		
 		if(enableSoundDetect) {
-			float val = soundPower / 256.0f;
+			float val = soundPower / 1024.0f;
 			if(val<0) val = 0;
 			if(val>1) val = 1;
 			float left = width / 2.0f + 5;
@@ -557,4 +552,24 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		if(f<20) f=20;
 		frequency = f;
 	}
+	
+    public void onStart() {
+    }
+    
+    public void onStop() {
+    }
+
+    protected void onResume() {
+    	loadSettings();
+		startRecording();
+
+		enableRefeshTime = true;
+		Message message = new Message();
+        message.what = MESSAGE_WHAT;
+		handler.sendMessageDelayed(message, REPEAT_INTERVAL);
+    }
+    
+    protected void onPause() {
+    	release();
+    }
 }

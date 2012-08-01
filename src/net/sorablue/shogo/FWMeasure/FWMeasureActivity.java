@@ -67,6 +67,7 @@ public class FWMeasureActivity extends Activity{
     @Override
     public void onStart() {
     	super.onStart();
+    	overlay.onStart();
 		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, // プロバイダ
     		 0, // 通知のための最小時間間隔
@@ -77,14 +78,14 @@ public class FWMeasureActivity extends Activity{
     @Override
     public void onStop() {
     	super.onStop();
-    	overlay.release();
+    	overlay.onStop();
     	locationManager.removeUpdates(overlay);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        overlay.loadSettings();
+        overlay.onResume();
         //画面を常にON状態に
         lock.acquire();
     }
@@ -92,6 +93,7 @@ public class FWMeasureActivity extends Activity{
     @Override
     protected void onPause() {
     	super.onPause();
+    	overlay.onPause();
         lock.release();
     }
     
