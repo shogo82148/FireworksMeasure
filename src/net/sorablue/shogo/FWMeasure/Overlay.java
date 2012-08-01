@@ -135,8 +135,8 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 							float wavelength = (float)SOUND_RATE / frequency;
 							int numwave = (int)(bufferRecord.length / wavelength);
 							tablesize = (int)(wavelength * numwave);
-							double omega = 2 * Math.PI / numwave;
-							Log.d("record", "wavelength: " + frequency);
+							double omega = 2 * Math.PI / wavelength;
+							Log.d("record", "frequency: " + frequency);
 							Log.d("record", "wavelength: " + wavelength);
 							Log.d("record", "numwave: " + numwave);
 							Log.d("record", "tablesize: " + tablesize);
