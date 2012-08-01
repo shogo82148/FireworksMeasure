@@ -10,4 +10,32 @@
         android:layout_height="wrap_content"
         android:text="@string/buttonSetPlace" />
 
+    <CheckBox
+        android:id="@+id/checkAutoDetect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/checkAutoDetect" />
+
+    <TextView
+        android:id="@+id/textDetectRange"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/textDetectRange" />
+
+    <SeekBar
+        android:id="@+id/seekBarDetectRange"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/textCameraThreshold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/textCameraThreshold" />
+
+    <SeekBar
+        android:id="@+id/seekBarCameraThreshold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>

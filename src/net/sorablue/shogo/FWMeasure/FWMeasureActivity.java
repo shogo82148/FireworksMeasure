@@ -83,6 +83,7 @@ public class FWMeasureActivity extends Activity{
     @Override
     protected void onResume() {
         super.onResume();
+        overlay.loadSettings();
         //‰æ–Ê‚ğí‚ÉONó‘Ô‚É
         lock.acquire();
     }

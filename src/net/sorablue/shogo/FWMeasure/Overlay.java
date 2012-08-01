@@ -10,7 +10,9 @@ import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Style;
 import android.hardware.Camera;
+import android.hardware.Camera.Size;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -22,8 +24,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 public class Overlay extends View implements SensorEventListener, PreviewCallback, LocationListener {
 	private final int REPEAT_INTERVAL = 100;
@@ -48,8 +52,13 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	//GPS情報
 	private Location location;
 	
-	//private int threshold = 20;
-	//private long last_light = Long.MAX_VALUE;
+	private boolean enableAutoDetect = false;
+	private int detectionRange = 0;
+	private int cameraThreshold = 0;
+	
+	private long brightness = 0;
+	private long last_brightness = 0;
+
 	private int width, height;
 	
 	protected boolean isRepeat = false; //True:タイマ動作中 False:タイマ停止
@@ -79,7 +88,8 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		acc_sensors = manager.getSensorList(Sensor.TYPE_ACCELEROMETER);
 		temp_sensors = manager.getSensorList(Sensor.TYPE_TEMPERATURE);
 		mag_sensors = manager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD);
-		
+
+		loadSettings();
 		stopTimer();
 	}
 	
@@ -186,9 +196,20 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		
 		//画面中央にラインを描画
 		Paint paint = new Paint();
+		paint.setStyle(Style.STROKE);
 		paint.setColor(Color.WHITE);
 		canvas.drawLine(0, height/2, width, height/2, paint);
 		canvas.drawLine(width/2, 0, width/2, height, paint);
+		
+		//自動検出範囲を描画
+		if(enableAutoDetect) {
+			canvas.drawRect(
+					width/2 - detectionRange,
+					height/2 - detectionRange,
+					width/2 + detectionRange,
+					height/2 + detectionRange,
+					paint);
+		}
 		
 		if(location == null) {
 			canvas.drawText(context.getString(R.string.locating_msg), 0, 15, paint);
@@ -338,19 +359,33 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	}
 	
 	public void onPreviewFrame(byte[] data, Camera camera) {
-		return ;
-		//ToDo: プレビュー映像を解析して自動化できるといいな
-		/*if(isRepeat) return ;
-		Size size = camera.getParameters().getPreviewSize();
-		final int frameSize = size.width*size.height;
+		if(!enableAutoDetect || isRepeat) return ;
+		
+		final Size size = camera.getParameters().getPreviewSize();
+		final int width = size.width;
+		final int height = size.height;
+		final int left = width/2 - detectionRange;
+		final int top = height/2 - detectionRange;
+		final int right = width/2 + detectionRange;
+		final int bottom = height/2 + detectionRange;
 		long count = 0;
-		for(int i=0;i<frameSize;i++) {
-			int y = (0xFF&(int)data[i]);
-			count+=y;
+		
+		for(int y=top; y<=bottom; y++) {
+			for(int x=left; x<=right; x++) {
+				int offset = y * width + x;
+				count += 0xFF & data[offset];
+			}
 		}
-		long t = (long)(threshold*frameSize);
-		if(count-last_light>t) startTimer();
-		last_light = count;*/
+		final long threshold =
+				(long)cameraThreshold *
+				(2*detectionRange+1) * (2*detectionRange+1);
+		last_brightness = brightness;
+		brightness = count;
+		if(brightness-last_brightness>threshold) {
+			startTimer();
+			last_brightness = 0;
+		}
+		Log.d("brightness", ""+(brightness / ((2*detectionRange+1) * (2*detectionRange+1))));
 	}
 
 	public void onLocationChanged(Location location) {
@@ -370,5 +405,15 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public void loadSettings() {
+		SharedPreferences settings = context.getSharedPreferences(
+				FWMeasureActivity.PREFERENCES_NAME,
+				FWMeasureActivity.MODE_PRIVATE);
+
+		enableAutoDetect = settings.getBoolean("enableAutoDetect", false);
+		detectionRange = settings.getInt("detectionRange", 0);
+		cameraThreshold = settings.getInt("cameraThreshold", 0);
 	}
 }
