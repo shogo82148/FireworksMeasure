@@ -63,26 +63,29 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 		try {
 			camera = Camera.open();
 			camera.setPreviewDisplay(holder);
-		} catch(Exception e) {
-			Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-		}
-		
-		//花火モードにする
-		Camera.Parameters params = camera.getParameters();
-		List<String> supported = params.getSupportedSceneModes();
-		if(supported != null) {
-			for(String sm: supported) {
-				if(sm.equals(Camera.Parameters.SCENE_MODE_FIREWORKS)) {
-					params.setSceneMode(sm);
-					camera.setParameters(params);
-					break;
+			
+			//花火モードにする
+			Camera.Parameters params = camera.getParameters();
+			List<String> supported = params.getSupportedSceneModes();
+			if(supported != null) {
+				for(String sm: supported) {
+					if(sm.equals(Camera.Parameters.SCENE_MODE_FIREWORKS)) {
+						params.setSceneMode(sm);
+						camera.setParameters(params);
+						break;
+					}
 				}
 			}
+		} catch(Exception e) {
+			Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
+			return ;
 		}
+
 	}
 
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
+		if(camera==null) return ;
 		camera.stopPreview();
 		
 		Camera.Parameters params = camera.getParameters();
@@ -96,7 +99,10 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 	}
 
 	public void surfaceDestroyed(SurfaceHolder holder) {
+		if(camera==null) return ;
 		camera.stopPreview();
+		camera.setPreviewCallback(null);
 		camera.release();
+		camera = null;
 	}
 }
