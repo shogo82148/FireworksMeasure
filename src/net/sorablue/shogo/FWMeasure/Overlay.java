@@ -76,6 +76,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	private int width, height;
 	
 	protected boolean isRepeat = false; //True:タイマ動作中 False:タイマ停止
+	private boolean enableRefeshTime = false;
 	protected long startTime;	//計測を開始したときの時刻
 	
 	private final double earthR = 6378137; //地球の半径
@@ -84,7 +85,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
-            if (isRepeat) {
+            if (enableRefeshTime) {
             	invalidate();
             	handler.sendMessageDelayed(obtainMessage(), REPEAT_INTERVAL);
             }
@@ -102,6 +103,11 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		acc_sensors = manager.getSensorList(Sensor.TYPE_ACCELEROMETER);
 		temp_sensors = manager.getSensorList(Sensor.TYPE_TEMPERATURE);
 		mag_sensors = manager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD);
+		
+		enableRefeshTime = true;
+		Message message = new Message();
+        message.what = MESSAGE_WHAT;
+		handler.sendMessageDelayed(message, REPEAT_INTERVAL);
 		
 		startRecording();
 		loadSettings();
@@ -169,6 +175,8 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		audioRecord.stop();
 		audioRecord.release();
 		audioRecord = null;
+		
+		enableRefeshTime = false;
 	}
 	
 	/**
@@ -177,9 +185,6 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	private void startTimer() {
 		//タイマの起動
 		isRepeat = true;
-		Message message = new Message();
-        message.what = MESSAGE_WHAT;
-		handler.sendMessageDelayed(message, REPEAT_INTERVAL);
 		startTime = SystemClock.uptimeMillis();
 		
 		//センサの取得開始
