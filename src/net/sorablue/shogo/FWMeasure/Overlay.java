@@ -5,6 +5,7 @@ import java.util.List;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
@@ -38,6 +39,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	private final int REPEAT_INTERVAL = 50;
 	private final int MESSAGE_WHAT = 100;
 	private static final int SOUND_RATE = 11025;
+	private final int START_DETECTION_DELAY = 2000;
 	
 	private Context context;
 	
@@ -76,6 +78,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	
 	protected boolean isRepeat = false; //True:タイマ動作中 False:タイマ停止
 	private boolean enableRefeshTime = false;
+	private boolean isShowingResult = true;
 	protected long startTime;	//計測を開始したときの時刻
 	
 	private final double earthR = 6378137; //地球の半径
@@ -436,9 +439,16 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		builder.setMessage(message);
 		builder.setPositiveButton(R.string.remeasure_button, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
-				//Do Nothing
+				startDection();
 			}
 		});
+		builder.setOnCancelListener(new OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				startDection();
+			}
+		});
+		
 		{
 			double latitude = 0;
 			double longitude = 0;
@@ -494,6 +504,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 				}
 			});
 		}
+		stopDetection();
 		builder.create().show();
 	}
 	
@@ -522,6 +533,8 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	}
 	
 	public void onPreviewFrame(byte[] data, Camera camera) {
+		if(!enableAutoDetect) return ;
+		
 		final Size size = camera.getParameters().getPreviewSize();
 		final int width = size.width;
 		final int height = size.height;
@@ -540,7 +553,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		last_brightness = brightness;
 		brightness = count;
 
-		if(!enableAutoDetect || isRepeat) return ;
+		if(isRepeat || isShowingResult) return ;
 		
 		final long threshold =
 				(long)cameraThreshold *
@@ -583,7 +596,28 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		frequency = settings.getInt("frequency", 0);;
 	}
 	
+	public void startDection() {
+	    isShowingResult = false;
+	}
+	
+	public void startDection(int delay) {
+		Handler handler = new Handler(){
+	        @Override
+	        public void handleMessage(Message msg) {
+	        	isShowingResult = false;
+	        }
+	    };
+		Message message = new Message();
+        message.what = MESSAGE_WHAT;
+		handler.sendMessageDelayed(message, delay);
+	}
+	
+	public void stopDetection() {
+    	isShowingResult = true;
+	}
+	
     public void onStart() {
+    	startDection(START_DETECTION_DELAY);
     }
     
     public void onStop() {
