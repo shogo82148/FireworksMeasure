@@ -68,9 +68,9 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	private AudioRecord audioRecord;
 	private boolean isRecording = false;
 	private boolean enableSoundDetect = false;
-	private int soundThreshold;
+	private float soundThreshold;
 	private int frequency = 100;
-	private int soundPower;
+	private float soundPower = 0;
 
 	private int width, height;
 	
@@ -145,6 +145,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 					sintable[i] = (float)(Math.sin(omega*i));
 					costable[i] = (float)(Math.cos(omega*i));
 				}
+				final float maxPower = (float)Math.log(32768) * 2;
 
 				// ‰ðÍŠJŽn
 				while(isRecording) {
@@ -157,7 +158,10 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 						sinpower += sintable[i] * bufferRecord[i];
 						cospower += costable[i] * bufferRecord[i];
 					}
-					soundPower = (int)Math.sqrt(sinpower * sinpower + cospower * cospower) / 256;
+					sinpower /= Math.PI * numwave;
+					cospower /= Math.PI * numwave;
+					float power = sinpower * sinpower + cospower * cospower + 1;
+					soundPower = (float)Math.log(power) / maxPower;
 					if(soundPower > soundThreshold && isRepeat) {
 						mHandler.post(new Runnable() {
 					        public void run() {
@@ -328,7 +332,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		}
 		
 		if(enableSoundDetect) {
-			float val = soundPower / 1024.0f;
+			float val = soundPower;
 			if(val<0) val = 0;
 			if(val>1) val = 1;
 			float left = width / 2.0f + 5;
@@ -348,7 +352,11 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 					top,
 					right,
 					bottom,
-					paint);			
+					paint);	
+			canvas.drawLine(
+					(right-left)*soundThreshold+left, top,
+					(right-left)*soundThreshold+left, bottom,
+					paint);
 		}
 		
 		if(location == null) {
@@ -556,7 +564,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		detectionRange = settings.getInt("detectionRange", 0);
 		cameraThreshold = settings.getInt("cameraThreshold", 0);
 		enableSoundDetect = settings.getBoolean("enableSoundDetect", false);
-		soundThreshold = settings.getInt("soundThreshold", 0);
+		soundThreshold = settings.getFloat("soundThreshold", 0);
 		int f = settings.getInt("frequency", 0);
 		if(f<20) f=20;
 		frequency = f;

@@ -105,9 +105,11 @@ public class SettingActivity extends Activity {
 						editor.commit();
 					}
         		});
+        
+        final int MAX_THRESHOLD = 1000;
         SeekBar seekBarSoundThreshold = (SeekBar)findViewById(R.id.seekBarSoundThreshold);
-        seekBarSoundThreshold.setMax(255);
-        seekBarSoundThreshold.setProgress(settings.getInt("soundThreshold", 0));
+        seekBarSoundThreshold.setMax(MAX_THRESHOLD);
+        seekBarSoundThreshold.setProgress((int)(settings.getFloat("soundThreshold", 0) * MAX_THRESHOLD));
         seekBarSoundThreshold.setOnSeekBarChangeListener(
         		new SeekBar.OnSeekBarChangeListener() {
 					
@@ -124,7 +126,7 @@ public class SettingActivity extends Activity {
 					@Override
 					public void onProgressChanged(SeekBar seekBar, int progress,
 							boolean fromUser) {
-						editor.putInt("soundThreshold", progress);
+						editor.putFloat("soundThreshold", (float)progress / MAX_THRESHOLD);
 						editor.commit();
 					}
 				});
