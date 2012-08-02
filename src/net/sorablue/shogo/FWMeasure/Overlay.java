@@ -139,11 +139,14 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 				final int numwave = Math.max((int)(bufferSizeRecord / wavelength), 1);
 				final int tablesize = (int)Math.round(wavelength * numwave);
 				final double omega = 2 * Math.PI / tablesize * numwave;
+				final double windowScale = 2 * Math.PI / tablesize;
 				final float[] sintable = new float[tablesize];
 				final float[] costable = new float[tablesize];
 				for(int i=0; i<tablesize; i++) {
-					sintable[i] = (float)(Math.sin(omega*i));
-					costable[i] = (float)(Math.cos(omega*i));
+					double window = 0.42 - 0.5 * Math.cos(windowScale * i) +
+							0.08 * Math.cos(2 * windowScale * i);
+					sintable[i] = (float)(Math.sin(omega*i) * window);
+					costable[i] = (float)(Math.cos(omega*i) * window);
 				}
 				final float maxPower = (float)Math.log(32768) * 2;
 
