@@ -114,7 +114,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 				SOUND_RATE,
 				CHANNEL,
 				ENCODING) / 2;
-		final double wavelength = (double)SOUND_RATE / frequency;
+		final double wavelength = frequency!=0 ? (double)SOUND_RATE / frequency : minBufferSize;
 		final int bufferSizeRecord = Math.max(
 				minBufferSize, (int)Math.round(wavelength));
 		
@@ -155,15 +155,28 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 					int size = audioRecord.read(bufferRecord, 0, bufferRecord.length);
 					if(size < bufferRecord.length)	continue;
 					
-					float sinpower = 0;
-					float cospower = 0;
-					for(int i=0; i<tablesize; i++) {
-						sinpower += sintable[i] * bufferRecord[i];
-						cospower += costable[i] * bufferRecord[i];
+					float power = 0;
+					if(frequency != 0) {
+						float sinpower = 0;
+						float cospower = 0;
+						for(int i=0; i<tablesize; i++) {
+							sinpower += sintable[i] * bufferRecord[i];
+							cospower += costable[i] * bufferRecord[i];
+						}
+						sinpower /= Math.PI * numwave;
+						cospower /= Math.PI * numwave;
+						power = sinpower * sinpower + cospower * cospower + 1;
+					} else {
+						float sum = 0;
+						float sum2 = 0;
+						for(int i=0; i<tablesize; i++) {
+							sum += bufferRecord[i];
+							sum2 += (float)bufferRecord[i] * bufferRecord[i];
+						}
+						sum /= tablesize;
+						sum2 /= tablesize;
+						power = sum2 - sum*sum + 1;
 					}
-					sinpower /= Math.PI * numwave;
-					cospower /= Math.PI * numwave;
-					float power = sinpower * sinpower + cospower * cospower + 1;
 					soundPower = (float)Math.log(power) / maxPower;
 					if(soundPower > soundThreshold && isRepeat) {
 						mHandler.post(new Runnable() {
@@ -568,9 +581,7 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		cameraThreshold = settings.getInt("cameraThreshold", 0);
 		enableSoundDetect = settings.getBoolean("enableSoundDetect", false);
 		soundThreshold = settings.getFloat("soundThreshold", 0);
-		int f = settings.getInt("frequency", 0);
-		if(f<20) f=20;
-		frequency = f;
+		frequency = settings.getInt("frequency", 0);;
 	}
 	
     public void onStart() {

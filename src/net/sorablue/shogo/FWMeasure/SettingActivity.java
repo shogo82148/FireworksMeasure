@@ -155,6 +155,8 @@ public class SettingActivity extends Activity {
 						text.setText(progress + "Hz");
 					}
 				});
+		TextView text = (TextView)findViewById(R.id.textFrequencyHz);
+		text.setText(settings.getInt("frequency", 1) + "Hz");
 
     }
     
