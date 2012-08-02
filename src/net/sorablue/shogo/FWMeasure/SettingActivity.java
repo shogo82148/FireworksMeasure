@@ -168,13 +168,13 @@ public class SettingActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
     	switch(requestCode) {
     		case SETTING_LOCATION:
-    		{
-    			SharedPreferences settings = getSharedPreferences(FWMeasureActivity.PREFERENCES_NAME, MODE_PRIVATE);
-    			SharedPreferences.Editor editor = settings.edit();
-    			editor.putInt("latitude", intent.getIntExtra("latitude", 0));
-    			editor.putInt("longitude", intent.getIntExtra("longitude", 0));
-    			editor.commit();
-    		}
+	    		if(resultCode == RESULT_OK){
+	    			SharedPreferences settings = getSharedPreferences(FWMeasureActivity.PREFERENCES_NAME, MODE_PRIVATE);
+	    			SharedPreferences.Editor editor = settings.edit();
+	    			editor.putInt("latitude", intent.getIntExtra("latitude", 0));
+	    			editor.putInt("longitude", intent.getIntExtra("longitude", 0));
+	    			editor.commit();
+	    		}
     			break;
     		default:
     			break;
