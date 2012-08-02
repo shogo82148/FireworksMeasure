@@ -109,51 +109,47 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 		final int CHANNEL = AudioFormat.CHANNEL_IN_MONO;
 		final int ENCODING = AudioFormat.ENCODING_PCM_16BIT;
 		
-		// 最小バッファサイズの計算
-		final int bufferSizeRecord = AudioRecord.getMinBufferSize(
+		// バッファサイズの計算
+		final int minBufferSize = AudioRecord.getMinBufferSize(
 				SOUND_RATE,
 				CHANNEL,
-				ENCODING);
+				ENCODING) / 2;
+		final double wavelength = (double)SOUND_RATE / frequency;
+		final int bufferSizeRecord = Math.max(
+				minBufferSize, (int)Math.round(wavelength));
+		
 		Log.d("record", "buffersize = " + bufferSizeRecord);
 		if(bufferSizeRecord<0) return ;
 		
 		// 録音の開始
-		final short[] bufferRecord = new short[bufferSizeRecord / 2];
+		final short[] bufferRecord = new short[bufferSizeRecord];
 		audioRecord = new AudioRecord(
 				MediaRecorder.AudioSource.MIC,
 				SOUND_RATE,
 				CHANNEL,
 				ENCODING,
-				bufferSizeRecord);
+				bufferSizeRecord * 2);
 		audioRecord.startRecording();
 		isRecording = true;
 		
 		final Handler mHandler = new Handler();
 		Thread thread = new Thread(new Runnable() {
 			public void run() {
-				int f = -1;
-				float[] sintable = new float[bufferRecord.length];
-				float[] costable = new float[bufferRecord.length];
-				int tablesize = 0;
+				// 三角関数テーブルの用意
+				final int numwave = Math.max((int)(bufferSizeRecord / wavelength), 1);
+				final int tablesize = (int)Math.round(wavelength * numwave);
+				final double omega = 2 * Math.PI / tablesize * numwave;
+				final float[] sintable = new float[tablesize];
+				final float[] costable = new float[tablesize];
+				for(int i=0; i<tablesize; i++) {
+					sintable[i] = (float)(Math.sin(omega*i));
+					costable[i] = (float)(Math.cos(omega*i));
+				}
+
+				// 解析開始
 				while(isRecording) {
-					if(frequency>0 && f != frequency) {
-						float wavelength = (float)SOUND_RATE / frequency;
-						int numwave = (int)(bufferRecord.length / wavelength);
-						tablesize = (int)(wavelength * numwave);
-						double omega = 2 * Math.PI / wavelength;
-						Log.d("record", "frequency: " + frequency);
-						Log.d("record", "wavelength: " + wavelength);
-						Log.d("record", "numwave: " + numwave);
-						Log.d("record", "tablesize: " + tablesize);
-						Log.d("record", "omega: " + omega);
-						for(int i=0; i<tablesize; i++) {
-							sintable[i] = (float)(Math.sin(omega*i));
-							costable[i] = (float)(Math.cos(omega*i));
-						}
-						f = frequency;
-					}
 					int size = audioRecord.read(bufferRecord, 0, bufferRecord.length);
-					if(size==0)	continue;
+					if(size < bufferRecord.length)	continue;
 					
 					float sinpower = 0;
 					float cospower = 0;
