@@ -317,10 +317,9 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 					height/2 + detectionRange,
 					paint);
 			//–¾‚é‚³‚ð•\Ž¦
-			final long threshold =
-					(long)cameraThreshold *
-					(2*detectionRange+1) * (2*detectionRange+1);
-			float val = (float)(brightness-last_brightness) / threshold / 2;
+			final float threshold = cameraThreshold / 256.0f;
+			float val = (float)(brightness-last_brightness) /
+					((2*detectionRange+1) * (2*detectionRange+1)) / 256;
 			if(val<0) val = 0;
 			if(val>1) val = 1;
 			float left = width / 2.0f + 5;
@@ -342,8 +341,8 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 					bottom,
 					paint);
 			canvas.drawLine(
-					(left+right)/2, top,
-					(left+right)/2, bottom,
+					(right-left)*threshold+left, top,
+					(right-left)*threshold+left, bottom,
 					paint);
 		}
 		
