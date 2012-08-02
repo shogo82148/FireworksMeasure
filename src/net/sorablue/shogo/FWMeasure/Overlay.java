@@ -65,8 +65,6 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	private long brightness = 0;
 	private long last_brightness = 0;
 	
-	private int bufferSizeRecord;
-	private short[] bufferRecord;
 	private AudioRecord audioRecord;
 	private boolean isRecording = false;
 	private boolean enableSoundDetect = false;
@@ -108,69 +106,74 @@ public class Overlay extends View implements SensorEventListener, PreviewCallbac
 	}
 	
 	private void startRecording() {
-		bufferSizeRecord = AudioRecord.getMinBufferSize(
+		final int CHANNEL = AudioFormat.CHANNEL_IN_MONO;
+		final int ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+		
+		// 最小バッファサイズの計算
+		final int bufferSizeRecord = AudioRecord.getMinBufferSize(
 				SOUND_RATE,
-				AudioFormat.CHANNEL_IN_MONO,
-				AudioFormat.ENCODING_PCM_16BIT);
+				CHANNEL,
+				ENCODING);
 		Log.d("record", "buffersize = " + bufferSizeRecord);
-		if(bufferSizeRecord>0) {
-			bufferRecord = new short[bufferSizeRecord / 2];
-			audioRecord = new AudioRecord(
-					MediaRecorder.AudioSource.MIC,
-					SOUND_RATE,
-					AudioFormat.CHANNEL_IN_MONO,
-					AudioFormat.ENCODING_PCM_16BIT,
-					bufferSizeRecord);
-			audioRecord.startRecording();
-			isRecording = true;
-			
-			final Handler mHandler = new Handler();
-			Thread thread = new Thread(new Runnable() {
-				public void run() {
-					int f = -1;
-					float[] sintable = new float[bufferRecord.length];
-					float[] costable = new float[bufferRecord.length];
-					int tablesize = 0;
-					while(isRecording) {
-						if(frequency>0 && f != frequency) {
-							float wavelength = (float)SOUND_RATE / frequency;
-							int numwave = (int)(bufferRecord.length / wavelength);
-							tablesize = (int)(wavelength * numwave);
-							double omega = 2 * Math.PI / wavelength;
-							Log.d("record", "frequency: " + frequency);
-							Log.d("record", "wavelength: " + wavelength);
-							Log.d("record", "numwave: " + numwave);
-							Log.d("record", "tablesize: " + tablesize);
-							Log.d("record", "omega: " + omega);
-							for(int i=0; i<tablesize; i++) {
-								sintable[i] = (float)(Math.sin(omega*i));
-								costable[i] = (float)(Math.cos(omega*i));
-							}
-							f = frequency;
-						}
-						int size = audioRecord.read(bufferRecord, 0, bufferRecord.length);
-						if(size==0)	continue;
-						
-						float sinpower = 0;
-						float cospower = 0;
+		if(bufferSizeRecord<0) return ;
+		
+		// 録音の開始
+		final short[] bufferRecord = new short[bufferSizeRecord / 2];
+		audioRecord = new AudioRecord(
+				MediaRecorder.AudioSource.MIC,
+				SOUND_RATE,
+				CHANNEL,
+				ENCODING,
+				bufferSizeRecord);
+		audioRecord.startRecording();
+		isRecording = true;
+		
+		final Handler mHandler = new Handler();
+		Thread thread = new Thread(new Runnable() {
+			public void run() {
+				int f = -1;
+				float[] sintable = new float[bufferRecord.length];
+				float[] costable = new float[bufferRecord.length];
+				int tablesize = 0;
+				while(isRecording) {
+					if(frequency>0 && f != frequency) {
+						float wavelength = (float)SOUND_RATE / frequency;
+						int numwave = (int)(bufferRecord.length / wavelength);
+						tablesize = (int)(wavelength * numwave);
+						double omega = 2 * Math.PI / wavelength;
+						Log.d("record", "frequency: " + frequency);
+						Log.d("record", "wavelength: " + wavelength);
+						Log.d("record", "numwave: " + numwave);
+						Log.d("record", "tablesize: " + tablesize);
+						Log.d("record", "omega: " + omega);
 						for(int i=0; i<tablesize; i++) {
-							sinpower += sintable[i] * bufferRecord[i];
-							cospower += costable[i] * bufferRecord[i];
+							sintable[i] = (float)(Math.sin(omega*i));
+							costable[i] = (float)(Math.cos(omega*i));
 						}
-						soundPower = (int)Math.sqrt(sinpower * sinpower + cospower * cospower) / 256;
-						if(soundPower > soundThreshold && isRepeat) {
-							mHandler.post(new Runnable() {
-						        public void run() {
-									stopTimer();
-									showResult();
-						        }
-						      });
-						}
+						f = frequency;
 					}
-				} 
-			});
-			thread.start();
-		}
+					int size = audioRecord.read(bufferRecord, 0, bufferRecord.length);
+					if(size==0)	continue;
+					
+					float sinpower = 0;
+					float cospower = 0;
+					for(int i=0; i<tablesize; i++) {
+						sinpower += sintable[i] * bufferRecord[i];
+						cospower += costable[i] * bufferRecord[i];
+					}
+					soundPower = (int)Math.sqrt(sinpower * sinpower + cospower * cospower) / 256;
+					if(soundPower > soundThreshold && isRepeat) {
+						mHandler.post(new Runnable() {
+					        public void run() {
+								stopTimer();
+								showResult();
+					        }
+					      });
+					}
+				}
+			} 
+		});
+		thread.start();
 	}
 	
 	public void release() {
