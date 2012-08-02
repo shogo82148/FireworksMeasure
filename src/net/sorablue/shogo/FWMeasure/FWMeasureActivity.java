@@ -101,7 +101,7 @@ public class FWMeasureActivity extends Activity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // メニューアイテムを追加します
-        menu.add(Menu.NONE, MENU_ID_SETTING, Menu.NONE, "設定");
+        menu.add(Menu.NONE, MENU_ID_SETTING, Menu.NONE, getText(R.string.menuSettings));
         return super.onCreateOptionsMenu(menu);
     }
 

@@ -47,6 +47,13 @@
         <item>SSE</item>
     </string-array>
     
+    <!-- Menu -->
+    <string name="menuShare">Share</string>
+    <string name="menuSettings">Settings</string>
+    
+    <!-- Share Message -->
+    <string name="msgShare">Fireworks are setting off here! (%s) #FireworksMeasure</string>
+    
     <!-- Setting Activity -->
     <string name="buttonSetPlace">Location Setting</string>
     <string name="checkAutoDetect">Detect fireworks automatically</string>

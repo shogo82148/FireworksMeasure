@@ -55,8 +55,9 @@ public class MapActivity extends com.google.android.maps.MapActivity{
 			        (int)(intent.getDoubleExtra("fw_longitude", 0)*1E6)
 			        )	);
         	list.add(overlay);
-        	shareString = String.format("花火の打ち上げ場所を調べてみたよ！(%.6f,%.6f) #FireworksMeasure",
-        				intent.getDoubleExtra("fw_latitude", 0), intent.getDoubleExtra("fw_longitude", 0));
+        	String position = String.format("%.6f,%.6f",
+    				intent.getDoubleExtra("fw_latitude", 0), intent.getDoubleExtra("fw_longitude", 0));
+        	shareString = this.getString(R.string.msgShare, position);
         }
     }
     
@@ -69,7 +70,7 @@ public class MapActivity extends com.google.android.maps.MapActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // メニューアイテムを追加します
-        menu.add(Menu.NONE, MENU_ID_SHARE, Menu.NONE, "シェア");
+        menu.add(Menu.NONE, MENU_ID_SHARE, Menu.NONE, getString(R.string.menuShare));
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -92,6 +93,6 @@ public class MapActivity extends com.google.android.maps.MapActivity{
 		final Intent intent = new Intent(android.content.Intent.ACTION_SEND);
 		intent.setType("text/plain");
 		intent.putExtra(Intent.EXTRA_TEXT, shareString);
-		startActivity(Intent.createChooser(intent, "シェア"));
+		startActivity(Intent.createChooser(intent, getString(R.string.menuShare)));
     }
 }

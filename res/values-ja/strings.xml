@@ -46,7 +46,14 @@
         <item>南東</item>
         <item>南南東</item>
     </string-array>
-
+    
+    <!-- Menu -->
+    <string name="menuShare">シェア</string>
+    <string name="menuSettings">設定</string>
+    
+    <!-- Share Message -->
+    <string name="msgShare">花火の打ち上げ場所を調べてみたよ！(%s) #FireworksMeasure</string>
+    
     <!-- Setting Activity -->
     <string name="buttonSetPlace">現在地の設定</string>
     <string name="checkAutoDetect">花火を自動的に検出する</string>
